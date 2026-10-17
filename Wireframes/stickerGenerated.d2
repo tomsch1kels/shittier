@@ -1,0 +1,55 @@
+direction: down
+
+classes: {
+  screen: {
+    shape: page
+    style: {
+      fill: "#fcfcfc"
+      stroke: "#333333"
+    }
+  }
+  success_banner: {
+    shape: rectangle
+    style: {
+      fill: "#d4edda"
+      stroke: "#c3e6cb"
+      font-color: "#155724"
+      border-radius: 6
+    }
+  }
+  button: {
+    shape: rectangle
+    style: {
+      fill: "#28a745"
+      font-color: "#ffffff"
+      border-radius: 6
+    }
+  }
+}
+
+# --- SCHERM: JEV Resultaat & Print Actie ---
+scherm_resultaat: "Scherm: JEV Besluitvorming Overzicht" {
+  class: screen
+  
+  titel: "🎯 JEV BESLUITVORMING OVERZICHT" { shape: text }
+  
+  # Het statusblok uit je script-output
+  status_blok: {
+    class: success_banner
+    label: "🚀 STATUS          : AUTOMATISCH GOEDGEKEURD\n🖨️ ACTIE           : Sticker kan direct worden afgedrukt."
+  }
+  
+  # Acties die hierop volgen
+  acties: {
+    direction: right
+    knop_print: "🖨️ Print Sticker Nu" { class: button }
+    knop_opnieuw: "🔄 Nieuwe Boekfoto" {
+      shape: rectangle
+      style: {
+        fill: "#6c757d"
+        font-color: "#ffffff"
+        border-radius: 6
+      }
+    }
+  }
+}

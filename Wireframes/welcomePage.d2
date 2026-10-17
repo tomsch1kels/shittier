@@ -1,0 +1,31 @@
+direction: down
+
+welkom: "Welkomstpagina" {
+  shape: page
+  
+  header: "Boek Sticker Generator" {
+    shape: text
+  }
+  
+  camera_section: "Camera / Upload Widget" {
+    shape: rectangle
+    preview: "Live Camera Feed\n[ Maak Foto van Boek ]" {
+      shape: rectangle
+    }
+  }
+  
+  actions: "Acties" {
+    shape: rectangle
+    knop: "Genereer Sticker" {
+      shape: rectangle
+      style.fill: "#4CAF50"
+    }
+  }
+  
+  resultaat: "Geproduceerde Sticker Preview" {
+    shape: rectangle
+  }
+}
+
+welkom.camera_section -> welkom.actions.knop: "1. Foto maken"
+welkom.actions.knop -> welkom.resultaat: "2. Verwerken & Genereren"
