@@ -1,31 +1,84 @@
+# welcomePage.d2 — wireframe Boek Sticker Generator
 direction: down
 
-welkom: "Welkomstpagina" {
-  shape: page
-  
-  header: "Boek Sticker Generator" {
-    shape: text
-  }
-  
-  camera_section: "Camera / Upload Widget" {
-    shape: rectangle
-    preview: "Live Camera Feed\n[ Maak Foto van Boek ]" {
-      shape: rectangle
-    }
-  }
-  
-  actions: "Acties" {
-    shape: rectangle
-    knop: "Genereer Sticker" {
-      shape: rectangle
-      style.fill: "#4CAF50"
-    }
-  }
-  
-  resultaat: "Geproduceerde Sticker Preview" {
-    shape: rectangle
+vars: {
+  d2-config: {
+    theme-id: 0
+    sketch: true
+    pad: 40
+    layout-engine: tala
   }
 }
 
-welkom.camera_section -> welkom.actions.knop: "1. Foto maken"
-welkom.actions.knop -> welkom.resultaat: "2. Verwerken & Genereren"
+phone: "" {
+  shape: rectangle
+  width: 280
+  height: 600
+  style.border-radius: 20
+  style.fill: white
+  style.stroke: black
+  style.stroke-width: 3
+  direction: down
+
+  camera_section: "Camera" {
+    shape: rectangle
+    style.fill: "#e8e8e8"
+    style.stroke: black
+    style.stroke-dash: 4
+    style.border-radius: 8
+    direction: down
+
+    preview: "Live camera feed" {
+      shape: text
+      style.font-size: 13
+      style.font-color: "#555555"
+    }
+
+    book: "Boekomslag in beeld" {
+      shape: rectangle
+      width: 175
+      height: 135
+      style.fill: white
+      style.stroke: black
+    }
+
+    hint: "Richt op de boekomslag" {
+      shape: text
+      style.font-size: 11
+      style.font-color: "#777777"
+    }
+  }
+
+  step: "● Stap 1 van 2 · Foto maken" {
+    shape: text
+    style.font-size: 12
+  }
+
+  shutter: "Maak foto van boek" {
+    shape: circle
+    width: 85
+    height: 85
+    style.fill: "#4CAF50"
+    style.stroke: white
+    style.stroke-width: 5
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  generate: "Genereer sticker" {
+    shape: rectangle
+    width: 195
+    height: 45
+    style.border-radius: 20
+    style.fill: "#bbbbbb"
+    style.stroke: "#bbbbbb"
+    style.font-color: white
+    style.font-size: 13
+  }
+
+  shutter -> generate: "● Stap 2 van 2 · Verwerken & genereren" {
+    style.stroke: "#4CAF50"
+    style.stroke-width: 2
+    style.stroke-dash: 4
+  }
+}

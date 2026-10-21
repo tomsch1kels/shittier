@@ -1,115 +1,76 @@
-direction: down
-
-classes: {
-  screen: {
-    shape: page
-    style: {
-      fill: "#fcfcfc"
-      stroke: "#333333"
-    }
-  }
-  warning_banner: {
-    shape: rectangle
-    style: {
-      fill: "#fff3cd"
-      stroke: "#ffeeba"
-      font-color: "#856404"
-      border-radius: 6
-    }
-  }
-  card_ok: {
-    shape: rectangle
-    style: {
-      fill: "#e2f0d9"
-      stroke: "#b3d89c"
-    }
-  }
-  card_uncertain: {
-    shape: rectangle
-    style: {
-      fill: "#fbe5d6"
-      stroke: "#f4b183"
-    }
-  }
-  btn_primary: {
-    shape: rectangle
-    style: {
-      fill: "#ffc107"
-      font-color: "#212529"
-      border-radius: 6
-    }
-  }
-  btn_success: {
-    shape: rectangle
-    style: {
-      fill: "#28a745"
-      font-color: "#ffffff"
-      border-radius: 6
-    }
+vars: {
+  d2-config: {
+    layout-engine: tala
+    theme-id: 0
+    sketch: false
+    pad: 20
   }
 }
 
-# --- SCHERM 1: OVERZICHT MET TWIJFELGEVAL ---
-scherm_twijfel: "Scherm: JEV Besluitvorming (Twijfelgeval)" {
-  class: screen
+screen: "" {
+  shape: rectangle
+  width: 300
+  height: 620
+  style.stroke: "#333333"
+  style.stroke-width: 3
+  style.border-radius: 20
+  style.fill: "#fcfcfc"
 
-  titel: "⚠️ HANDMATIGE CONTROLE VEREIST" { shape: text }
-
-  banner: {
-    class: warning_banner
-    label: "STATUS: TWIJFELGEVAL (Zekerheid < 75%)\nACTIE: Controleer de oranje gekleurde velden voor het afdrukken."
+  header_bar: "" {
+    shape: rectangle
+    width: 300
+    height: 50
+    style.fill: "#f5f5f5"
+    style.stroke: "#dddddd"
+    style.border-radius: 17
+    
+    back_arrow: "←" {
+      shape: text
+      style.font-size: 18
+    }
+    
+    title: "Pas Advies Aan" {
+      shape: text
+      style.font-size: 17
+      style.bold: true
+    }
   }
 
-  details: "Details uit JEV API" {
+  body_content: "" {
+    shape: rectangle
+    style.fill: "#fcfcfc"
+    style.stroke: none
     direction: down
 
-    cat: "🟢 Categorie: Literatuur\n└─ Zekerheid: 99% (Snelkeuze OK)" {
-      class: card_ok
+    form_card: "Formulier" {
+      shape: rectangle
+      style.fill: "#ffffff"
+      style.stroke: "#dddddd"
+      style.border-radius: 8
+      
+      field_1: "Categorie: Literatuur ✓ 99%" {
+        shape: text
+        style.font-size: 12
+      }
+      
+      field_2: "Snelheid: ( ) Snel ( ) Normaal (*) Traag" {
+        shape: text
+        style.font-size: 12
+      }
+      
+      field_3: "Prijs: (*) €5.00 ( ) €3.50 ( ) €7.50" {
+        shape: text
+        style.font-size: 12
+      }
     }
 
-    snelheid: "🔴 Verkoopsnelheid: Normaal\n└─ Zekerheid: 46% ⚠️ (Lage zekerheid)" {
-      class: card_uncertain
+    action_bar: "🖨️ Opslaan & Afdrukken" {
+      shape: rectangle
+      style.fill: "#28a745"
+      style.stroke: "#1e7e34"
+      style.border-radius: 8
+      style.font-color: "#ffffff"
+      style.font-weight: bold
     }
-
-    prijs: "🟡 Verkoopprijs: € 5.00 (Score 1.95)\n└─ Zekerheid: 65% ⚠️ (Matige zekerheid)" {
-      class: card_uncertain
-    }
-  }
-
-  knop_aanpassen: "✏️ Waarden Aanpassen & Printen" {
-    class: btn_primary
   }
 }
-
-# --- SCHERM 2: HANDMATIG AANPASSEN ---
-scherm_aanpassen: "Scherm: Corrigeer Twijfelwaarden" {
-  class: screen
-
-  titel: "✏️ Pas JEV Advies Aan" { shape: text }
-
-  formulier: "Keuzes Bevestigen" {
-    direction: down
-
-    cat_input: "Categorie: [ Literatuur ▾ ] (99% zeker)" {
-      shape: rectangle
-    }
-
-    snelheid_input: "Verkoopsnelheid (Kies de juiste):\n( ) Snel (14%)\n(*) Normaal (64%)\n( ) Traag (22%)" {
-      shape: rectangle
-      style.fill: "#fff2cc"
-    }
-
-    prijs_input: "Verkoopprijs (Kies de juiste):\n( ) € 3.50 (25%)\n(*) € 5.00 (51%)\n( ) € 7.50 (20%)" {
-      shape: rectangle
-      style.fill: "#fff2cc"
-    }
-  }
-
-  knop_bevestig_print: "🖨️ Opslaan & Sticker Afdrukken" {
-    class: btn_success
-  }
-}
-
-# Flow tussen de schermen
-scherm_twijfel.knop_aanpassen -> scherm_aanpassen: "Klikt op aanpassen"
-scherm_aanpassen.knop_bevestig_print -> scherm_twijfel: "Afdrukken voltooid"
