@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data: blob: content:;
+                 media-src 'self' blob: mediastream:;
+                 connect-src 'self' data: blob:;">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover, user-scalable=no">
+  <meta name="color-scheme" content="light dark">
+  <link rel="stylesheet" href="css/index.css">
+  <title>Boek Sticker Generator</title>
+</head>
+<body>
+  <div class="app">
+
+    <header class="topbar">
+      <button class="icon-btn" id="btn-back" aria-label="Terug">&#8592;</button>
+      <h1 class="topbar__title">Boek Sticker Generator</h1>
+      <span class="topbar__spacer"></span>
+    </header>
+
+    <main class="screen">
+
+      <section class="viewfinder" id="viewfinder">
+        <video id="video" playsinline autoplay muted></video>
+        <canvas id="canvas" hidden></canvas>
+        <img id="snapshot" alt="Gemaakte foto" hidden>
+
+        <div class="guides" aria-hidden="true">
+          <span class="corner corner--tl"></span>
+          <span class="corner corner--tr"></span>
+          <span class="corner corner--bl"></span>
+          <span class="corner corner--br"></span>
+        </div>
+
+        <p class="viewfinder__hint" id="hint">Richt op de boekomslag</p>
+      </section>
+
+      <div class="controls">
+        <button class="control" id="btn-flash" aria-label="Flits">&#9889;</button>
+        <button class="control" id="btn-gallery" aria-label="Kies uit galerij">&#128444;</button>
+        <button class="control" id="btn-retake" aria-label="Opnieuw" hidden>&#8635;</button>
+      </div>
+
+      <p class="step" id="step">&#9679; Stap 1 van 2 &middot; Foto maken</p>
+
+      <button class="shutter" id="btn-shutter" aria-label="Maak foto van boek">
+        <span class="shutter__inner"></span>
+      </button>
+
+      <button class="cta" id="btn-generate" disabled>Genereer sticker</button>
+
+    </main>
+  </div>
+
+  <script src="cordova.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>
