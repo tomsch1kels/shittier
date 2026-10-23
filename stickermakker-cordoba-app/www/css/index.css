@@ -1,118 +1,201 @@
-/**
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
-*/
-
-* {
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
-    box-sizing: border-box;
+:root {
+  --bg: #ffffff;
+  --surface: #f5f5f5;
+  --line: #d8d8d8;
+  --text: #1a1a1a;
+  --muted: #777777;
+  --accent: #4CAF50;
+  --disabled: #bbbbbb;
 }
 
-html {
-    overscroll-behavior: none;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --line: #333333;
+    --text: #f0f0f0;
+    --muted: #9a9a9a;
+  }
 }
 
-body {
-    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
-    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
-    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
-    background-color:#E4E4E4;
-    background-image:linear-gradient(to bottom, #A7A7A7 0%, #E4E4E4 51%);
-    font-family: system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
-    font-size:12px;
-    height:100vh;
-    margin:0px;
-    padding:0px;
-    /* Padding to avoid the "unsafe" areas behind notches in the screen */
-    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
-    text-size-adjust: none;
-    text-transform:uppercase;
-    user-select: none;
-    width:100%;
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, Roboto, "Segoe UI", sans-serif;
+  overscroll-behavior: none;
 }
 
-/* Portrait layout (default) */
 .app {
-    background:url(../img/logo.png) no-repeat center top; /* 170px x 200px */
-    position:absolute;             /* position in the center of the screen */
-    left:50%;
-    top:50%;
-    height:50px;                   /* text area height */
-    width:225px;                   /* text area width */
-    text-align:center;
-    padding:180px 0px 0px 0px;     /* image height is 200px (bottom 20px are overlapped with text) */
-    margin:-115px 0px 0px -112px;  /* offset vertical: half of image height and text area height */
-                                   /* offset horizontal: half of text area width */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Landscape layout (with min-width) */
-@media screen and (min-aspect-ratio: 1/1) and (min-width:400px) {
-    .app {
-        background-position:left center;
-        padding:75px 0px 75px 170px;  /* padding-top + padding-bottom + text area = image height */
-        margin:-90px 0px 0px -198px;  /* offset vertical: half of image height */
-                                      /* offset horizontal: half of image width and text area width */
-    }
+/* ---------- Topbar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  flex: 0 0 auto;
 }
 
-h1 {
-    font-size:24px;
-    font-weight:normal;
-    margin:0px;
-    overflow:visible;
-    padding:0px;
-    text-align:center;
+.topbar__title {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
 }
 
-.event {
-    border-radius:4px;
-    color:#FFFFFF;
-    font-size:12px;
-    margin:0px 30px;
-    padding:2px 0px;
+.icon-btn {
+  width: 36px; height: 36px;
+  border: 0; border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
 }
 
-.event.listening {
-    background-color:#333333;
-    display:block;
+.topbar__spacer { width: 36px; }
+
+/* ---------- Hoofdscherm ---------- */
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  min-height: 0;
 }
 
-.event.received {
-    background-color:#4B946A;
-    display:none;
+/* ---------- Viewfinder ---------- */
+.viewfinder {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 190px;
+  max-height: 62vh;
+  background: #000;
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-#deviceready.ready .event.listening { display: none; }
-#deviceready.ready .event.received { display: block; }
-
-@keyframes fade {
-    from { opacity: 1.0; }
-    50% { opacity: 0.4; }
-    to { opacity: 1.0; }
+.viewfinder video,
+.viewfinder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.blink {
-    -webkit-animation:fade 3000ms infinite;
-    animation:fade 3000ms infinite;
+.viewfinder__hint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .82);
+  color: #333;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
+/* Hoekmarkeringen */
+.corner {
+  position: absolute;
+  width: 26px; height: 26px;
+  border: 3px solid #fff;
+}
+.corner--tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+.corner--tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
+.corner--bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
+.corner--br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
 
-@media screen and (prefers-color-scheme: dark) {
-    body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
-    }
+/* ---------- Bedieningsrij ---------- */
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 44px;
+  flex: 0 0 auto;
+}
+
+.control {
+  width: 44px; height: 44px;
+  border: 0; border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.control.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------- Stap-indicator ---------- */
+.step {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+/* ---------- Sluiterknop ---------- */
+.shutter {
+  width: 76px; height: 76px;
+  border: 4px solid var(--text);
+  border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.shutter__inner {
+  width: 58px; height: 58px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform .12s ease;
+}
+
+.shutter:active .shutter__inner { transform: scale(.9); }
+
+.shutter:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+
+/* ---------- Primaire knop ---------- */
+.cta {
+  width: 100%;
+  max-width: 380px;
+  padding: 15px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.cta:disabled {
+  background: var(--disabled);
+  cursor: not-allowed;
 }
