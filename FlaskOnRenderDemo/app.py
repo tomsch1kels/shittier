@@ -7,10 +7,15 @@ CORS(app)
 
 @app.route('/find', methods=['POST'])
 def find_file_size():
-    # 1. Ensure the request has a file attached
-    if 'image' not in request.files:
-        return jsonify({"error": "No file provided. Please send a file with the key 'image'."}), 400
+    print("=== DEBUG ===")
+    print("Form keys:", list(request.form.keys()))
+    print("Files keys:", list(request.files.keys()))
+    print("Content-Type:", request.content_type)
+    print("Data len:", len(request.data))
+    print("============")
     
+    if 'image' not in request.files:
+        return jsonify({"error": "No file provided...", "files_keys": list(request.files.keys())}), 400
     file = request.files['image']
     
     # 2. Ensure the file isn't empty
