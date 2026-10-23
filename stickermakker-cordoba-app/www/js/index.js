@@ -207,6 +207,7 @@ function generateSticker() {
   } catch (e) {
     console.warn('Foto te groot voor sessionStorage:', e);
   }
+  // "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAA
 
   window.location.href = 'generate.html';
 }
