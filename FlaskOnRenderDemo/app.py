@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import toevoegen
 import requests
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/find', methods=['POST'])
 def find_file_size():
