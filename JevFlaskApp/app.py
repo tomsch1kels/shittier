@@ -56,7 +56,7 @@ def find_file_size():
 
     try:
         gemini_response = client.models.generate_content(
-            model="gemini-2.0-flash", # Updated to standard active model name
+            model="gemini-3.5-flash-lite", # Updated to standard active model name
             contents=[image, prompt]
         )
         book_state = gemini_response.text
