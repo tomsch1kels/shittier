@@ -102,17 +102,6 @@ def find_file_size():
                     "21": "Romans"
                 }
             },
-            "verkoopsnelheid": {
-                "type": "choice",
-                "instructions": "Schat in binnen hoeveel dagen dit boek waarschijnlijk verkocht zal worden.",
-                "criteria": {
-                    "0-14 dagen": "Verwachte verkoop binnen 14 dagen",
-                    "14-30 dagen": "Verwachte verkoop tussen 14 en 30 dagen",
-                    "30-60 dagen": "Verwachte verkoop tussen 30 en 60 dagen",
-                    "60-90 dagen": "Verwachte verkoop tussen 60 en 90 dagen",
-                    "90+ dagen": "Verwachte verkoop duurt langer dan 90 dagen"
-                }
-            },
             "verkoopprijs": {
                 "type": "score",
                 "instructions": "Bepaal een geschikte tweedehands verkoopprijs in EUR voor dit boek. Kies uit het bereik van 0,50 tot 5,00 euro.",
