@@ -90,11 +90,16 @@ def find_file_size():
                 "type": "choice",
                 "instructions": "Bepaal in welke winkelcategorie dit boek het beste past.",
                 "criteria": {
-                    "Literatuur": "Literatuur en romans",
-                    "Thriller": "Thrillers, detectives en spanning",
-                    "Non-Fictie": "Non-fictie, geschiedenis en filosofie",
-                    "Kinderboek": "Kinderboeken en jeugd",
-                    "Hobby": "Koken, hobby en vrije tijd"
+                    "1": "Bedrijfskunde & economie",
+                    "4": "Educatief, opvoeding & onderwijs",
+                    "7": "Geschiedenis & koningshuis",
+                    "8": "Gezondheid & geneeskunde",
+                    "9": "Godsdienst & religie",
+                    "10": "Hobby",
+                    "17": "Mens & maatschappij",
+                    "18": "Natuur & milieu",
+                    "20": "Poëzie",
+                    "21": "Romans"
                 }
             },
             "verkoopsnelheid": {
