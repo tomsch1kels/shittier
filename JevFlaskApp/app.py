@@ -115,8 +115,8 @@ def find_file_size():
             },
             "verkoopprijs": {
                 "type": "score",
-                "instructions": "Bepaal een geschikte tweedehands verkoopprijs in EUR voor dit boek.",
-                "criteria": ["2.00", "3.50", "5.00", "7.50", "10.00", "15.00"]
+                "instructions": "Bepaal een geschikte tweedehands verkoopprijs in EUR voor dit boek. Kies uit het bereik van 0,50 tot 5,00 euro.",
+                "criteria": ["0.50", "1.00", "1.50", "2.00", "2.50", "3.00", "3.50", "4.00", "4.50", "5.00"]
             }
         }
     }
