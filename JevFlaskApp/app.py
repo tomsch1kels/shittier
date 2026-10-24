@@ -104,11 +104,13 @@ def find_file_size():
             },
             "verkoopsnelheid": {
                 "type": "choice",
-                "instructions": "Schat in hoe snel dit boek waarschijnlijk verkocht zal worden.",
+                "instructions": "Schat in binnen hoeveel dagen dit boek waarschijnlijk verkocht zal worden.",
                 "criteria": {
-                    "Snel": "Verwachte verkoop binnen 14 dagen",
-                    "Normaal": "Verwachte verkoop tussen 14 en 60 dagen",
-                    "Traag": "Verwachte verkoop duurt langer dan 60 dagen"
+                    "0-14 dagen": "Verwachte verkoop binnen 14 dagen",
+                    "14-30 dagen": "Verwachte verkoop tussen 14 en 30 dagen",
+                    "30-60 dagen": "Verwachte verkoop tussen 30 en 60 dagen",
+                    "60-90 dagen": "Verwachte verkoop tussen 60 en 90 dagen",
+                    "90+ dagen": "Verwachte verkoop duurt langer dan 90 dagen"
                 }
             },
             "verkoopprijs": {
