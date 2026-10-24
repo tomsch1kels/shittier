@@ -53,10 +53,13 @@ def find_file_size():
     Geef alleen deze beschrijving terug zonder extra beleefdheidsflosfels.
     """
 
-    # Gebruik Gemini 3.5 Flash Lite: altijd beschikbaar en goedkoop
+    # Inside your /find route:
+    image_file = request.files['image']
+    image = Image.open(image_file)
+
     gemini_response = client.models.generate_content(
-        model="gemini-3.5-flash-lite",
-        contents=[img, prompt]
+        model="gemini-3.5-flash-lite", # Or your specific Gemini model name
+        contents=[image, prompt]
     )
 
     book_state = gemini_response.text

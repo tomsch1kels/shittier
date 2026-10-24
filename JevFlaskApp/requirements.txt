@@ -3,6 +3,6 @@ gunicorn
 requests
 flask-cors==4.0.0
 dotenv
-google
-PIL
+google-genai
+Pillow
 datetime
