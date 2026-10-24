@@ -22,18 +22,19 @@ def find_file_size():
     
     if 'image' not in request.files:
         return jsonify({"error": "No file provided...", "files_keys": list(request.files.keys())}), 400
+    
     file = request.files['image']
     
-    # 2. Ensure the file isn't empty
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
+
     # 1. Laad API keys uit .env
     load_dotenv()
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     JEV_API_KEY = os.getenv("JEV_API_KEY")
 
     if not GEMINI_API_KEY or not JEV_API_KEY:
-        raise ValueError("❌ Zorg dat zowel GEMINI_API_KEY als JEV_API_KEY in je .env bestand staan!")
+        return jsonify({"error": "Zorg dat zowel GEMINI_API_KEY als JEV_API_KEY in je .env bestand staan!"}), 500
 
     # ---------------------------------------------------------
     # STAP 1: Gemini aanroepen voor visuele analyse van het boek
@@ -41,28 +42,26 @@ def find_file_size():
     print("📸 Foto wordt geanalyseerd door Gemini Flash...")
 
     client = genai.Client(api_key=GEMINI_API_KEY)
-    img = file
+    image = Image.open(file)
 
     prompt = """
     Analyseer deze foto van het boek. Extraheer de volgende gegevens in een compacte Nederlandse tekst:
-    - Titel
-    - Auteur
-    - Staat/Conditie (bijv. vergeelde pagina's, leesvouwen, hoekschade, nieuwstaat, etc.)
-    - Details (formaat, binds规定/hardcover/paperback, eventuele opvallende kenmerken)
+- Titel
+- Auteur
+- Staat/Conditie (bijv. vergeelde pagina's, leesvouwen, hoekschade, nieuwstaat, etc.)
+- Details (formaat, hardcover/paperback, eventuele opvallende kenmerken)
 
     Geef alleen deze beschrijving terug zonder extra beleefdheidsflosfels.
     """
 
-    # Inside your /find route:
-    image_file = request.files['image']
-    image = Image.open(image_file)
-
-    gemini_response = client.models.generate_content(
-        model="gemini-3.5-flash-lite", # Or your specific Gemini model name
-        contents=[image, prompt]
-    )
-
-    book_state = gemini_response.text
+    try:
+        gemini_response = client.models.generate_content(
+            model="gemini-2.0-flash", # Updated to standard active model name
+            contents=[image, prompt]
+        )
+        book_state = gemini_response.text
+    except Exception as e:
+        return jsonify({"error": f"Gemini API error: {str(e)}"}), 500
 
     print("\n--- GEMINI EXTRACTION (BOOK STATE) ---")
     print(book_state)
@@ -117,64 +116,63 @@ def find_file_size():
 
     try:
         response = requests.post(URL, headers=headers, json=payload, timeout=15)
+        
         if response.status_code == 200:
             result = response.json()
 
-            # ---------------------------------------------------------
             # OPSLAAN VAN DE RAUWE RESPONS JSON
-            # ---------------------------------------------------------
-
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_filename = f"jev_response_{timestamp}.json"
             with open(output_filename, "w", encoding="utf-8") as f:
                 json.dump(result, f, indent=2, ensure_ascii=False)
             print(f"💾 Rauwe JEV respons opgeslagen in '{output_filename}'")
 
-            # ---------------------------------------------------------
             # OVERZICHTSWEERGAVE IN DE TERMINAL
-            # ---------------------------------------------------------
             decisions = result.get("decisions", {})
-            
             print("\n" + "=" * 55)
             print("         🎯 JEV BESLUITVORMING OVERZICHT")
             print("=" * 55)
             
             total_confidence = 1.0
-            
             for key, details in decisions.items():
                 waarde = details.get("value", "N/A")
                 confidence = details.get("confidence", 0.0)
                 percentage = confidence * 100
-                
                 if confidence < total_confidence:
                     total_confidence = confidence
                 
                 icon = "🟢" if percentage >= 90 else ("🟡" if percentage >= 75 else "🔴")
-                label = key.capitalize()
-                print(f"\n🔹 {label:<16}: {waarde}")
+                print(f"\n🔹 {key.capitalize():<16}: {waarde}")
                 print(f"   └─ Zekerheid   : {icon} {percentage:.1f}%")
 
             print("\n" + "-" * 55)
-            
             if total_confidence >= 0.90:
                 print("🚀 STATUS          : AUTOMATISCH GOEDGEKEURD")
-                print("🖨️ ACTIE           : Sticker kan direct worden afgedrukt.")
             elif total_confidence >= 0.75:
                 print("⚠️ STATUS          : TWIJFELGEVAL")
-                print("🔍 ACTIE           : Controleer categorie of prijs handmatig.")
             else:
                 print("❌ STATUS          : ONVOLDOENDE ZEKERHEID")
-                print("✋ ACTIE           : Vraag handmatige invoer aan de medewerker.")
-                
             print("=" * 55 + "\n")
+
+            # **CRITICAL FIX: Return a valid JSON response back to the client**
+            return jsonify({
+                "success": True,
+                "book_state": book_state,
+                "jev_result": result
+            }), 200
             
         else:
             print(f"\n❌ JEV API Fout ({response.status_code}):")
             print(response.text)
+            return jsonify({
+                "error": "JEV API failed",
+                "status_code": response.status_code,
+                "details": response.text
+            }), response.status_code
 
     except Exception as e:
         print(f"❌ Fout tijdens verwerking: {e}")
+        return jsonify({"error": str(e)}), 500
 
-    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
