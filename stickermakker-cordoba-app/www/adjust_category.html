@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Categorie</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, Roboto, sans-serif; margin: 0; padding: 16px 0 80px; }
+    h1 { font-size: 15px; color: #666; margin: 0 16px 8px; font-weight: 500; }
+    .categorie-lijst { list-style: none; margin: 0; padding: 0; }
+    .categorie {
+      display: block; color: #333; font-size: 13px; padding: 10px 16px;
+      border-bottom: 1px solid #f0f0f0; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .categorie.selected { background: #6d4aff; color: #fff; }
+    .balk { height: 4px; background: #e5e5ea; margin-top: 6px; overflow: hidden; }
+    .balk-vulling { height: 100%; width: 0; background: #6d4aff; transition: width .6s ease; }
+    .categorie.selected .balk { background: rgba(255,255,255,.3); }
+    .categorie.selected .balk-vulling { background: #fff; }
+    .volgende {
+      position: fixed; left: 16px; right: 16px; bottom: 16px;
+      padding: 14px; border: 0; border-radius: 8px;
+      background: #6d4aff; color: #fff; font-size: 14px; font-weight: 600;
+    }
+    .volgende[disabled] { background: #ccc; }
+  </style>
+</head>
+<body>
+  <h1>Kies een categorie</h1>
+  <ul id="categorieen" class="categorie-lijst"></ul>
+  <button id="volgende" class="volgende" disabled>Volgende</button>
+
+  <script>
+    var categorieen = {
+      1: "Bedrijfskunde & economie",
+      4: "Educatief, opvoeding & onderwijs",
+      7: "Geschiedenis & koningshuis",
+      8: "Gezondheid & geneeskunde",
+      9: "Godsdienst & religie",
+      10: "Hobby",
+      17: "Mens & maatschappij",
+      18: "Natuur & milieu",
+      20: "Poëzie",
+      21: "Romans"
+    };
+
+    // stabiel percentage per id, zodat het niet springt bij herladen
+    function pctVoor(sleutel) {
+      var h = 0, s = String(sleutel);
+      for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973;
+      return 30 + (h % 66);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var lijst = document.getElementById("categorieen");
+      var knop = document.getElementById("volgende");
+      var gekozen = null;
+
+      const raw = sessionStorage.getItem("assessmentResult");
+      let assessmentResult = null;
+      try { assessmentResult = raw ? JSON.parse(raw) : null; } catch (e) { assessmentResult = null; }
+        
+      const probabilities = assessmentResult.jev_result.answers.categorie.probabilities;
+
+      const gesorteerd = Object.entries(probabilities)
+        .map(([categorieId, probability]) => ({ categorieId, probability }))
+        .sort((a, b) => b.probability - a.probability);
+
+      for (const { categorieId, probability } of gesorteerd) {
+        var pct = probability*100;
+        var li = document.createElement("li");
+        li.className = "categorie";
+        li.dataset.id = categorieId;
+        li.innerHTML =
+          "<div>" + categorieen[categorieId] + "</div>" +
+          '<div class="balk"><div class="balk-vulling"></div></div>';
+
+        li.addEventListener("click", function () {
+          var oud = lijst.querySelector(".categorie.selected");
+          if (oud) oud.classList.remove("selected");
+          li.classList.add("selected");
+          gekozen = categorieId;
+          knop.disabled = false;
+        });
+
+        lijst.appendChild(li);
+        requestAnimationFrame(function () {
+          li.querySelector(".balk-vulling").style.width = pct + "%";
+        });
+      }
+
+      knop.addEventListener("click", function () {
+        if (!gekozen) return;
+        localStorage.setItem("categorieId", gekozen);
+        localStorage.setItem("categorieNaam", categorieen[gekozen]);
+        window.location.href = "adjust_price.html";
+      });
+    });
+  </script>
+</body>
+</html>

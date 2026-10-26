@@ -2,12 +2,18 @@ document.addEventListener('deviceready', onDeviceReady, false);
 
 function onDeviceReady() {
   const el = {
-    connect:       document.getElementById('btn-connect'),
-    back:       document.getElementById('btn-back')
+    back:       document.getElementById('btn-back'),
+    continue:       document.getElementById('btn-continue')
   };
 
-  el.connect.addEventListener('click', () => connect());
   el.back.addEventListener('click', () => window.history.back());
+  el.continue.addEventListener('click', () => goToAdjust(el));
+
+  connect(el);
+}
+
+function goToAdjust(el) {
+  window.location.href = 'adjust_category.html';
 
 }
 
@@ -41,6 +47,9 @@ async function uploadFoto(photoDataUrl) {
     const result = await res.json();
     console.log(result);
 
+
+    sessionStorage.setItem("assessmentResult", JSON.stringify(result));
+
     // Toon het resultaat tijdelijk netjes in de UI
     showTemporaryResult(result);
 
@@ -61,7 +70,7 @@ function showTemporaryResult(data) {
   overlay.id = 'api-result-overlay';
   overlay.style.cssText = `
     position: fixed;
-    top: 20px;
+    top: 90px;
     left: 20px;
     right: 20px;
     max-height: 70vh;
@@ -93,10 +102,4 @@ function showTemporaryResult(data) {
   // Sluitknop functionaliteit
   document.getElementById('close-api-result').onclick = () => overlay.remove();
 
-  // Automatisch verdwijnen na 12 seconden (tijdelijk zichtbaar)
-  setTimeout(() => {
-    if (overlay.parentNode) {
-      overlay.remove();
-    }
-  }, 12000);
 }
