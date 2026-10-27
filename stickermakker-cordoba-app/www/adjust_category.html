@@ -46,22 +46,29 @@
       21: "Romans"
     };
 
-    // stabiel percentage per id, zodat het niet springt bij herladen
-    function pctVoor(sleutel) {
-      var h = 0, s = String(sleutel);
-      for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 9973;
-      return 30 + (h % 66);
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
       var lijst = document.getElementById("categorieen");
       var knop = document.getElementById("volgende");
       var gekozen = null;
 
+      // Clear bestaande items (als er per ongeluk nog HTML-items staan)
+      lijst.innerHTML = '';
+
       const raw = sessionStorage.getItem("assessmentResult");
       let assessmentResult = null;
-      try { assessmentResult = raw ? JSON.parse(raw) : null; } catch (e) { assessmentResult = null; }
+      try { 
+        assessmentResult = raw ? JSON.parse(raw) : null; 
+      } catch (e) { 
+        console.error('Error parsing assessmentResult:', e);
+        assessmentResult = null;
+      }
         
+      if (!assessmentResult || !assessmentResult.jev_result?.answers?.categorie?.probabilities) {
+        console.error('Invalid assessmentResult structure');
+        alert('Fout: geen probabiliteiten gevonden');
+        return;
+      }
+      
       const probabilities = assessmentResult.jev_result.answers.categorie.probabilities;
 
       const gesorteerd = Object.entries(probabilities)
@@ -69,26 +76,42 @@
         .sort((a, b) => b.probability - a.probability);
 
       for (const { categorieId, probability } of gesorteerd) {
-        var pct = probability*100;
+        var pct = probability * 100;
         var li = document.createElement("li");
         li.className = "categorie";
         li.dataset.id = categorieId;
-        li.innerHTML =
-          "<div>" + categorieen[categorieId] + "</div>" +
-          '<div class="balk"><div class="balk-vulling"></div></div>';
+        
+        // Bouw de structuur via createElement in plaats van innerHTML
+        var textDiv = document.createElement("div");
+        textDiv.textContent = categorieen[categorieId];
+        li.appendChild(textDiv);
+        
+        var balk = document.createElement("div");
+        balk.className = "balk";
+        
+        var vulling = document.createElement("div");
+        vulling.className = "balk-vulling";
+        // Set width DIRECT zonder requestAnimationFrame
+        vulling.style.width = pct + "%";
+        
+        balk.appendChild(vulling);
+        li.appendChild(balk);
 
         li.addEventListener("click", function () {
           var oud = lijst.querySelector(".categorie.selected");
           if (oud) oud.classList.remove("selected");
           li.classList.add("selected");
-          gekozen = categorieId;
+          gekozen = this.dataset.id; // ← verander hier
           knop.disabled = false;
         });
 
         lijst.appendChild(li);
-        requestAnimationFrame(function () {
-          li.querySelector(".balk-vulling").style.width = pct + "%";
-        });
+
+        if (probability > 0.5 && !gekozen) {
+          li.classList.add("selected");
+          gekozen = categorieId;
+          knop.disabled = false;
+        }
       }
 
       knop.addEventListener("click", function () {
