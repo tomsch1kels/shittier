@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Presenteer sticker</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 80px 20px 40px;   /* ruimte vrijhouden voor de terug-knop */
+      overflow: auto;
+      font-family: system-ui, sans-serif;
+      background: #ffffff;
+    }
+
+    /* Gedraaide tekstvelden (een kwartslag) */
+    #titel, #weeknummer, #categoryId, #prijs {
+      writing-mode: vertical-rl;  /* vak is echt verticaal -> layout klopt */
+      transform: rotate(180deg);  /* leest van onder naar boven */
+      font-size: 48px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #6d4aff;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    #titel { font-size: 64px; }
+
+    /* Houder bepaalt hoeveel ruimte de barcode in de layout inneemt.
+       Deze maten gelden NA de draaiing: breedte = canvas-hoogte,
+       hoogte = canvas-breedte. Pas ze aan als je de tekst wijzigt. */
+    #barcodeWrap {
+      position: relative;
+      flex: 0 0 auto;
+      width: 185px;
+      height: 395px;
+    }
+
+    /* Het canvas wordt een kwartslag gedraaid, net als de tekst */
+    #barcode {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(90deg);
+      background: #ffffff;
+    }
+
+    #terug {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 20px;
+      font-weight: 600;
+      padding: 10px 20px;
+      background-color: #6d4aff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STICKER LAYOUT
+  (Titel boek)
+  Week dat hij wordt opgeslagen
+  Cijfer van categorie (zonder naam categorie)
+  Prijs
+  (Barcode verkoopsysteem) -->
+  <p id="titel"></p>
+  <p id="auteur"></p>
+  <p id="weeknummer"></p>
+  <p id="categoryId"></p>
+  <p id="prijs"></p>
+  <div id="barcodeWrap"><canvas id="barcode"></canvas></div>
+  <a id="terug" href="index.html">&larr; Terug</a>
+
+  <script>
+
+    /* ---------- Code 128 patroontabel (waarden 0 t/m 106) ----------
+       Elk cijfer is de breedte van een balk of spatie, in modules.
+       Even index = zwarte balk, oneven index = wit.                  */
+    var PATRONEN = [
+      "212222","222122","222221","121223","121322","131222","122213","122312","132212","221213",
+      "221312","231212","112232","122132","122231","113222","123122","123221","223211","221132",
+      "221231","213212","223112","312131","311222","321122","321221","312212","322112","322211",
+      "212123","212321","232121","111323","131123","131321","112313","132113","132311","211313",
+      "231113","231311","112133","112331","132131","113123","113321","133121","313121","211331",
+      "231131","213113","213311","213131","311123","311321","331121","312113","312311","332111",
+      "314111","221411","431111","111224","111422","121124","121421","141122","141221","112214",
+      "112412","122114","122411","142112","142211","241211","221114","413111","241112","134111",
+      "111242","121142","121241","114212","124112","124211","411212","421112","421211","212141",
+      "214121","412121","111143","111341","131141","114113","114311","411113","411311","113141",
+      "114131","311141","411131","211412","211214","211232","2331112"
+    ];
+
+    /* ---------- Tekst omzetten naar een Code 128-B patroon ---------- */
+    function code128B(tekst) {
+      var START_B = 104, STOP = 106;
+      var waarden = [];
+      var som = START_B;
+
+      for (var i = 0; i < tekst.length; i++) {
+        var v = tekst.charCodeAt(i) - 32;   // set B: ASCII 32 t/m 126
+        if (v < 0 || v > 94) continue;      // onbekende tekens overslaan
+        waarden.push(v);
+        som += v * waarden.length;          // weging 1, 2, 3, ...
+      }
+
+      waarden.push(som % 103);              // controlecijfer
+
+      var patroon = PATRONEN[START_B];
+      for (var j = 0; j < waarden.length; j++) patroon += PATRONEN[waarden[j]];
+      patroon += PATRONEN[STOP];
+      return patroon;
+    }
+
+    /* ---------- Barcode op het canvas tekenen ---------- */
+    function drawBarcode(canvas, tekst) {
+      var patroon = code128B(tekst);
+
+      var moduleBreedte = 2;    // px per module (het dunste streepje)
+      var stilte = 10;          // rustzone in modules aan elke kant
+      var balkHoogte = 90;
+      var tekstHoogte = 28;
+
+      var aantalModules = stilte * 2;
+      for (var i = 0; i < patroon.length; i++) {
+        aantalModules += parseInt(patroon.charAt(i), 10);
+      }
+
+      var breedte = aantalModules * moduleBreedte;
+      var hoogte = balkHoogte + tekstHoogte;
+
+      // Scherper renderen op schermen met een hoge pixeldichtheid
+      var dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(breedte * dpr);
+      canvas.height = Math.round(hoogte * dpr);
+      canvas.style.width = breedte + "px";
+      canvas.style.height = hoogte + "px";
+
+      var ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, breedte, hoogte);
+
+      ctx.fillStyle = "#000000";
+      var x = stilte * moduleBreedte;
+      for (var j = 0; j < patroon.length; j++) {
+        var w = parseInt(patroon.charAt(j), 10) * moduleBreedte;
+        if (j % 2 === 0) ctx.fillRect(x, 0, w, balkHoogte);
+        x += w;
+      }
+
+      // Leesbare tekst onder de streepjes
+      ctx.font = "bold 20px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tekst, breedte / 2, balkHoogte + tekstHoogte / 2);
+    }
+
+    /* ---------- Weeknummer (ISO 8601) ---------- */
+    function getWeekNumber(d) {
+      d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+      var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    /* ---------- Velden vullen ---------- */
+    document.addEventListener("DOMContentLoaded", function () {
+      var prijs = localStorage.getItem("prijs") || "";
+      var categorieId = localStorage.getItem("categorieId") || "";
+      var categorieNaam = localStorage.getItem("categorieNaam") || "";
+        var titel = localStorage.getItem("titel")  || "";
+        var auteur = localStorage.getItem("auteur") || "";
+
+      document.getElementById("prijs").textContent = prijs;
+      document.getElementById("categoryId").textContent =
+        categorieNaam ? categorieId + " (" + categorieNaam + ")" : categorieId;
+      document.getElementById("weeknummer").textContent = getWeekNumber(new Date());
+      document.getElementById("titel").textContent = titel;
+      document.getElementById("auteur").textContent = auteur;
+
+      // De barcode. Wil je een andere waarde? Pas deze regel aan,
+      // of haal hem uit localStorage:
+      //   localStorage.getItem("barcode") || "lorem ipsum"
+      drawBarcode(document.getElementById("barcode"), "lorem ipsum");
+    });
+
+  </script>
+</body>
+</html>

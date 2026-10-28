@@ -100,8 +100,6 @@
 
       knop.addEventListener("click", function () {
         if (!gekozen) return;
-        localStorage.setItem("categorieId", gekozen);
-        localStorage.setItem("categorieNaam", categorieen[gekozen]);
         window.location.href = "present_sticker.html";
       });
     });

@@ -27,6 +27,32 @@ function connect(el) {
     console.log('Geen foto gevonden in sessionStorage');
   }
 }
+
+function getValueFromBookState(jsonData, fieldName) {
+    try {
+        // Optioneel: parse als het een string is
+        var data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+
+        if (!data.book_state) {
+            throw new Error('book_state niet gevonden in JSON');
+        }
+
+        var bookState = data.book_state;
+        var escapedFieldName = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var regex = new RegExp('- ' + escapedFieldName + ':\\s*(.+?)(?=\\n|$)', 'i');
+        var match = bookState.match(regex);
+
+        if (!match || !match[1]) {
+            throw new Error(fieldName + ' niet gevonden in book_state');
+        }
+
+        return match[1].trim();
+    } catch (err) {
+        console.error('Fout bij ophalen ' + fieldName + ':', err.message);
+        return null;
+    }
+}
+
 async function uploadFoto(photoDataUrl) {
   try {
     // Optioneel: toon een melding dat de foto wordt verstuurd
@@ -47,6 +73,20 @@ async function uploadFoto(photoDataUrl) {
     const result = await res.json();
     console.log(result);
 
+
+    var titel = getValueFromBookState(result, 'Titel');
+    var auteur = getValueFromBookState(result, 'Auteur');
+
+    if (titel === null) {
+        titel = "Titel niet gevonden.";
+    }
+
+    if (auteur !== null) {
+        auteur = "Auteur niet gevonden.";
+    }
+
+    sessionStorage.setItem("titel", titel);
+    sessionStorage.setItem("auteur", auteur);
 
     sessionStorage.setItem("assessmentResult", JSON.stringify(result));
 
