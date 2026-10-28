@@ -97,11 +97,13 @@
         balk.appendChild(vulling);
         li.appendChild(balk);
 
+        // FIX: Gebruik 'li' in plaats van 'this' in de callback
+        // 'li' wordt in de closure vastgehouden met de juiste waarde
         li.addEventListener("click", function () {
           var oud = lijst.querySelector(".categorie.selected");
           if (oud) oud.classList.remove("selected");
           li.classList.add("selected");
-          gekozen = this.dataset.id; // ← verander hier
+          gekozen = li.dataset.id;   // ← Was "this.dataset.id" (bug!)
           knop.disabled = false;
         });
 
