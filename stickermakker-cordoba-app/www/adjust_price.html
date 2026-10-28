@@ -47,7 +47,7 @@
       return 20 + (h % 76);
     }
 
-    const raw = sessionStorage.getItem("assessmentResult");
+    const raw = localStorage.getItem("assessmentResult");
     let assessmentResult = null;
     try { 
       assessmentResult = raw ? JSON.parse(raw) : null; 

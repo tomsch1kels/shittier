@@ -200,12 +200,12 @@ function generateSticker() {
   if (!photoDataUrl) return;
 
   // Tijdelijke opslag zodat het volgende scherm de foto kan oppakken.
-  // sessionStorage is genoeg voor één schermovergang; voor grotere foto's
+  // localStorage is genoeg voor één schermovergang; voor grotere foto's
   // kun je beter het FileSystem- of Preferences-plugin gebruiken.
   try {
-    sessionStorage.setItem('stickerSourcePhoto', photoDataUrl);
+    localStorage.setItem('stickerSourcePhoto', photoDataUrl);
   } catch (e) {
-    console.warn('Foto te groot voor sessionStorage:', e);
+    console.warn('Foto te groot voor localStorage:', e);
   }
   // "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAA
 

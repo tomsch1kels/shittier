@@ -19,12 +19,12 @@ function goToAdjust(el) {
 
 
 function connect(el) {
-  const foto = sessionStorage.getItem('stickerSourcePhoto');
+  const foto = localStorage.getItem('stickerSourcePhoto');
 
   if (foto) {
     uploadFoto(foto);
   } else {
-    console.log('Geen foto gevonden in sessionStorage');
+    console.log('Geen foto gevonden in localStorage');
   }
 }
 
@@ -85,10 +85,10 @@ async function uploadFoto(photoDataUrl) {
         auteur = "Auteur niet gevonden.";
     }
 
-    sessionStorage.setItem("titel", titel);
-    sessionStorage.setItem("auteur", auteur);
+    localStorage.setItem("titel", titel);
+    localStorage.setItem("auteur", auteur);
 
-    sessionStorage.setItem("assessmentResult", JSON.stringify(result));
+    localStorage.setItem("assessmentResult", JSON.stringify(result));
 
     // Toon het resultaat tijdelijk netjes in de UI
     showTemporaryResult(result);

@@ -54,7 +54,7 @@
       // Clear bestaande items (als er per ongeluk nog HTML-items staan)
       lijst.innerHTML = '';
 
-      const raw = sessionStorage.getItem("assessmentResult");
+      const raw = localStorage.getItem("assessmentResult");
       let assessmentResult = null;
       try { 
         assessmentResult = raw ? JSON.parse(raw) : null; 
