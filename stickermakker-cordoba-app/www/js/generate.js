@@ -27,30 +27,44 @@ function connect(el) {
     console.log('Geen foto gevonden in localStorage');
   }
 }
+// Regex-specialtekens in de veldnaam onschadelijk maken
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-function getValueFromBookState(jsonData, fieldName) {
-    try {
-        // Optioneel: parse als het een string is
-        var data = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+/**
+ * Haalt de waarde van één veld op uit LLM-tekst.
+ * Ondersteunt: -, *, •, –, · als opsommingsteken, nummering (1. / 1)),
+ * markdown (**vet**, __vet__, *cursief*, `code`), : of ： als scheiding,
+ * en zowel LF als CRLF regeleindes.
+ * Geeft null terug als het veld niet gevonden wordt.
+ */
+function getValueFromBookState(tekst, fieldName) {
+  if (!tekst || !fieldName) return null;
 
-        if (!data.book_state) {
-            throw new Error('book_state niet gevonden in JSON');
-        }
+  const label = escapeRegex(String(fieldName).trim());
 
-        var bookState = data.book_state;
-        var escapedFieldName = fieldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        var regex = new RegExp('- ' + escapedFieldName + ':\\s*(.+?)(?=\\n|$)', 'i');
-        var match = bookState.match(regex);
+  const regex = new RegExp(
+    '(?:^|\\r?\\n)' +                    // begin van een regel
+    '[ \\t>]*' +                         // inspringing of quote-marker
+    '(?:[-*•–·]|\\d{1,3}[.)])?' +        // optioneel opsommingsteken of nummer
+    '[ \\t]*' +
+    '(?:\\*\\*|__|\\*|_|`)?' +           // openingsmarkdown
+    label +
+    '(?!\\p{L}|\\p{N})' +                // geen half woord matchen (Prijs ≠ PrijsIncl)
+    '(?:\\*\\*|__|\\*|_|`)?' +           // sluitmarkdown
+    '[ \\t]*[:：][ \\t]*' +              // dubbele punt (ASCII of full-width)
+    '([^\\r\\n]*)',                      // waarde: rest van de regel
+    'iu'
+  );
 
-        if (!match || !match[1]) {
-            throw new Error(fieldName + ' niet gevonden in book_state');
-        }
+  const m = tekst.match(regex);
+  if (!m) return null;
 
-        return match[1].trim();
-    } catch (err) {
-        console.error('Fout bij ophalen ' + fieldName + ':', err.message);
-        return null;
-    }
+  return m[1]
+    .replace(/[ \t]+$/, '')   // spaties aan het eind
+    .replace(/[*_`]+$/, '')   // losse markdown-tekens aan het eind
+    .trim();
 }
 
 async function uploadFoto(photoDataUrl) {
