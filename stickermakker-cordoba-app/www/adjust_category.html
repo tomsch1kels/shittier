@@ -102,8 +102,8 @@
         li.addEventListener("click", function () {
           var oud = lijst.querySelector(".categorie.selected");
           if (oud) oud.classList.remove("selected");
-          li.classList.add("selected");
-          gekozen = li.dataset.id;   // ← Was "this.dataset.id" (bug!)
+          this.classList.add("selected");
+          gekozen = this.dataset.id;   // ← Was "this.dataset.id" (bug!)
           knop.disabled = false;
         });
 
