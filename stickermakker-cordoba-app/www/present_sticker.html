@@ -21,19 +21,42 @@
       background: #ffffff;
     }
 
+    /* Groep waarin titel en auteur onder elkaar staan */
+    .boekInfo {
+      display: flex;
+      flex-direction: column;   /* onder elkaar in plaats van naast elkaar */
+      align-items: center;
+      gap: 14px;                /* ruimte tussen titel en auteur */
+      flex: 0 0 auto;
+    }
+
     /* Gedraaide tekstvelden (een kwartslag) */
-    #titel, #weeknummer, #categoryId, #prijs {
+    #titel, #auteur, #weeknummer, #categoryId, #prijs {
       writing-mode: vertical-rl;  /* vak is echt verticaal -> layout klopt */
       transform: rotate(180deg);  /* leest van onder naar boven */
       font-size: 48px;
-      font-weight: 900;
       text-transform: uppercase;
       color: #6d4aff;
       margin: 0;
       white-space: nowrap;
     }
 
-    #titel { font-size: 64px; }
+    /* Titel: vetgedrukt en het grootst */
+    #titel {
+      font-size: 62px;
+      font-weight: 900;
+    }
+
+    /* Auteur: niet vetgedrukt, iets kleiner */
+    #auteur {
+      font-size: 46px;
+      font-weight: 400;
+    }
+
+    /* De overige velden blijven vetgedrukt */
+    #weeknummer, #categoryId, #prijs {
+      font-weight: 900;
+    }
 
     /* Houder bepaalt hoeveel ruimte de barcode in de layout inneemt.
        Deze maten gelden NA de draaiing: breedte = canvas-hoogte,
@@ -71,13 +94,16 @@
 <body>
 
   <!-- STICKER LAYOUT
-  (Titel boek)
+  (Titel boek)      <- vetgedrukt
+  (Auteur boek)     <- niet vetgedrukt, direct onder de titel
   Week dat hij wordt opgeslagen
   Cijfer van categorie (zonder naam categorie)
   Prijs
   (Barcode verkoopsysteem) -->
-  <p id="titel"></p>
-  <p id="auteur"></p>
+  <div class="boekInfo">
+    <p id="titel"></p>
+    <p id="auteur"></p>
+  </div>
   <p id="weeknummer"></p>
   <p id="categoryId"></p>
   <p id="prijs"></p>
@@ -181,8 +207,8 @@
       var prijs = localStorage.getItem("prijs") || "";
       var categorieId = localStorage.getItem("categorieId") || "";
       var categorieNaam = localStorage.getItem("categorieNaam") || "";
-        var titel = localStorage.getItem("titel")  || "";
-        var auteur = localStorage.getItem("auteur") || "";
+      var titel = localStorage.getItem("titel") || "";
+      var auteur = localStorage.getItem("auteur") || "";
 
       document.getElementById("prijs").textContent = prijs;
       document.getElementById("categoryId").textContent =

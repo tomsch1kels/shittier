@@ -17,7 +17,8 @@ function onDeviceReady() {
     flash:      document.getElementById('btn-flash'),
     gallery:    document.getElementById('btn-gallery'),
     retake:     document.getElementById('btn-retake'),
-    back:       document.getElementById('btn-back')
+    back:       document.getElementById('btn-back'),
+    shortcut:   document.getElementById('btn-shortcut')
   };
 
   el.shutter.addEventListener('click', () => capture(el));
@@ -26,8 +27,22 @@ function onDeviceReady() {
   el.gallery.addEventListener('click', () => pickFromGallery(el));
   el.generate.addEventListener('click', () => generateSticker());
   el.back.addEventListener('click', () => window.history.back());
+  el.shortcut.addEventListener('click', () => takeShortcut());
 
   startCamera(el);
+}
+
+async function takeShortcut() {
+    
+    localStorage.setItem("titel", "Basisboek bedrijfskunde");
+    localStorage.setItem("auteur", "Sytse Douma en Stijn van den Hoogen");
+
+    const res = await fetch('loremInput.json');
+    const data = await res.json();
+    localStorage.setItem("assessmentResult", JSON.stringify(data));
+
+    window.location.href = 'adjust_category.html';
+
 }
 
 /* ---------- Live camera starten ---------- */
