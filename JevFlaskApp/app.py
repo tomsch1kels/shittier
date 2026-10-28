@@ -3,10 +3,12 @@ from flask_cors import CORS  # Import toevoegen
 from dotenv import load_dotenv
 from PIL import Image
 from google import genai
+from google.genai import types  # Nodig voor HttpOptions (timeout)
 from datetime import datetime
 import requests
 import os
 import json
+import time  # Nodig voor het meten van de duur
 
 app = Flask(__name__)
 CORS(app)
@@ -41,7 +43,11 @@ def find_file_size():
     # ---------------------------------------------------------
     print("📸 Foto wordt geanalyseerd door Gemini Flash...")
 
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    # Client configureren met een timeout van 120 seconden (120.000 ms)
+    client = genai.Client(
+        api_key=GEMINI_API_KEY,
+        http_options=types.HttpOptions(timeout=120000)
+    )
     image = Image.open(file)
 
     prompt = """
@@ -54,14 +60,19 @@ def find_file_size():
     Geef alleen deze beschrijving terug zonder extra beleefdheidsflosfels.
     """
 
+    start_gemini = time.time()
     try:
         gemini_response = client.models.generate_content(
-            model="gemini-3.5-flash-lite", # Updated to standard active model name
+            model="gemini-3.5-flash-lite", 
             contents=[image, prompt]
         )
         book_state = gemini_response.text
     except Exception as e:
         return jsonify({"error": f"Gemini API error: {str(e)}"}), 500
+    
+    end_gemini = time.time()
+    gemini_duration = round(end_gemini - start_gemini, 2)
+    print(f"⏱️ Gemini call duurde: {gemini_duration} seconden")
 
     print("\n--- GEMINI EXTRACTION (BOOK STATE) ---")
     print(book_state)
@@ -110,8 +121,12 @@ def find_file_size():
         }
     }
 
+    start_jev = time.time()
     try:
-        response = requests.post(URL, headers=headers, json=payload, timeout=15)
+        response = requests.post(URL, headers=headers, json=payload, timeout=30)
+        end_jev = time.time()
+        jev_duration = round(end_jev - start_jev, 2)
+        print(f"⏱️ JEV API call duurde: {jev_duration} seconden")
         
         if response.status_code == 200:
             result = response.json()
@@ -150,11 +165,15 @@ def find_file_size():
                 print("❌ STATUS          : ONVOLDOENDE ZEKERHEID")
             print("=" * 55 + "\n")
 
-            # **CRITICAL FIX: Return a valid JSON response back to the client**
+            # Retourneer de respons inclusief de timmings
             return jsonify({
                 "success": True,
                 "book_state": book_state,
-                "jev_result": result
+                "jev_result": result,
+                "timings": {
+                    "gemini_seconds": gemini_duration,
+                    "jev_seconds": jev_duration
+                }
             }), 200
             
         else:
@@ -163,7 +182,11 @@ def find_file_size():
             return jsonify({
                 "error": "JEV API failed",
                 "status_code": response.status_code,
-                "details": response.text
+                "details": response.text,
+                "timings": {
+                    "gemini_seconds": gemini_duration,
+                    "jev_seconds": round(time.time() - start_jev, 2)
+                }
             }), response.status_code
 
     except Exception as e:
