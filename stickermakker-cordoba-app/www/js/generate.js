@@ -78,8 +78,9 @@ function getValueFromBookState(tekst, fieldName) {
   if (!m) return null;
 
   return m[1]
-    .replace(/[ \t]+$/, '')   // spaties aan het eind
-    .replace(/[*_`]+$/, '')   // losse markdown-tekens aan het eind
+    .replace(/[ \t]+$/, '')          // spaties/tabs aan het eind
+    .replace(/[*_`]+$/, '')          // markdown aan het eind
+    .replace(/^[*]+/, '')            // ✓ sterretjes aan het BEGIN (één of meer)
     .trim();
 }
 
@@ -119,6 +120,7 @@ async function uploadFoto(photoDataUrl) {
     // Veldwaarden uitlezen uit het antwoord (werk met string-waarden, niet null checks)
     let titel  = getValueFromBookState(result, 'Titel');
     let auteur = getValueFromBookState(result, 'Auteur');
+
 
     if (titel === null)  titel  = 'Titel niet gevonden.';
     if (auteur === null) auteur = 'Auteur niet gevonden.';  // ← Was !== (fout!), nu ===
