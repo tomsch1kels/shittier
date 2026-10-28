@@ -85,6 +85,9 @@ async function uploadFoto(photoDataUrl) {
         auteur = "Auteur niet gevonden.";
     }
 
+    console.log("Titel: " + titel);
+    console.log("Auteur: " + auteur);
+
     localStorage.setItem("titel", titel);
     localStorage.setItem("auteur", auteur);
 
