@@ -25,12 +25,19 @@
     .prijs-vak.selected { border-color: #6d4aff; border-width: 2px; color: #6d4aff; font-weight: 600; }
     .prijs-vak.selected .vulling { background: rgba(109,74,255,.18); }
     .terug { display: inline-block; margin-top: 20px; font-size: 13px; color: #6d4aff; text-decoration: none; }
+    .volgende {
+      position: fixed; left: 16px; right: 16px; bottom: 16px;
+      padding: 14px; border: 0; border-radius: 8px;
+      background: #6d4aff; color: #fff; font-size: 14px; font-weight: 600;
+    }
+    .volgende[disabled] { background: #ccc; }
   </style>
 </head>
 <body>
   <h1>Kies een prijs</h1>
   <p class="gekozen" id="gekozen"></p>
   <div id="prijsgrid" class="prijs-grid"></div>
+  <button id="volgende" class="volgende" disabled>Volgende</button>
   <a class="terug" href="index.html">&larr; Terug</a>
 
   <script>
@@ -40,15 +47,33 @@
       return 20 + (h % 76);
     }
 
+    const raw = sessionStorage.getItem("assessmentResult");
+    let assessmentResult = null;
+    try { 
+      assessmentResult = raw ? JSON.parse(raw) : null; 
+    } catch (e) { 
+      console.error('Error parsing assessmentResult:', e);
+      assessmentResult = null;
+    }
+      
+    if (!assessmentResult || !assessmentResult.jev_result?.answers?.categorie?.probabilities) {
+      console.error('Invalid assessmentResult structure');
+      alert('Fout: geen probabiliteiten gevonden');
+    }
+    
+    const probabilities = assessmentResult.jev_result.answers.verkoopprijs.probabilities;
+
+
     document.addEventListener("DOMContentLoaded", function () {
       var naam = localStorage.getItem("categorieNaam");
       document.getElementById("gekozen").textContent = naam ? "Categorie: " + naam : "";
+      var knop = document.getElementById("volgende");
 
       var grid = document.getElementById("prijsgrid");
 
       for (var i = 1; i <= 10; i++) {
         var bedrag = (i * 0.5).toFixed(2);
-        var pct = pctVoor(bedrag);
+        var pct = probabilities[i-1]*100;
 
         var vak = document.createElement("div");
         vak.className = "prijs-vak";
@@ -62,6 +87,7 @@
           if (oud) oud.classList.remove("selected");
           this.classList.add("selected");
           localStorage.setItem("prijs", this.dataset.prijs);
+          knop.disabled = false;
         });
 
         grid.appendChild(vak);
@@ -69,8 +95,15 @@
           requestAnimationFrame(function () {
             v.querySelector(".vulling").style.width = p + "%";
           });
-        })(vak, pct);
+        })(vak, pct); 
       }
+
+      knop.addEventListener("click", function () {
+        if (!gekozen) return;
+        localStorage.setItem("categorieId", gekozen);
+        localStorage.setItem("categorieNaam", categorieen[gekozen]);
+        window.location.href = "adjust_price.html";
+      });
     });
   </script>
 </body>
