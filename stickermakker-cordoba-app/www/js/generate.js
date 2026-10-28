@@ -16,17 +16,37 @@ function goToAdjust(el) {
   window.location.href = 'adjust_category.html';
 }
 
-function connect(el) {
+async function connect(el) {
   const foto = localStorage.getItem('stickerSourcePhoto');
-
-  if (foto) {
-    uploadFoto(foto);
-  } else {
+  if (!foto) {
     console.log('Geen foto gevonden in localStorage');
+    return;
   }
+  const klein = await verkleinAfbeelding(foto, 1200, 0.85);
+  uploadFoto(klein);
 }
 
 /* ---------- Hulpfuncties -------------------------------------- */
+
+function verkleinAfbeelding(dataUrl, maxZijde = 1200, kwaliteit = 0.85) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const schaal = Math.min(1, maxZijde / Math.max(img.width, img.height));
+      const w = Math.round(img.width * schaal);
+      const h = Math.round(img.height * schaal);
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      resolve(canvas.toDataURL('image/jpeg', kwaliteit));
+    };
+    img.onerror = () => reject(new Error('Kon afbeelding niet laden'));
+    img.src = dataUrl;
+  });
+}
 
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
