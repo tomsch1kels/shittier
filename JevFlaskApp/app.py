@@ -7,19 +7,19 @@ from google.genai import types  # Nodig voor HttpOptions (timeout)
 from datetime import datetime
 import requests
 import os
-import io # Zorg dat deze bovenaan je imports staat
+import io  # Zorg dat deze bovenaan je imports staat
 import json
 import time  # Nodig voor het meten van de duur
 
 app = Flask(__name__)
 CORS(app)
+
 @app.route('/find', methods=['POST'])
 def find_file_size():
     print("=== DEBUG ===")
     print("Form keys:", list(request.form.keys()))
     print("Files keys:", list(request.files.keys()))
     print("Content-Type:", request.content_type)
-    # Verwijder of pas print(len(request.data)) aan, want dat is altijd 0 bij multipart uploads
     print("============")
     
     if 'image' not in request.files:
@@ -30,7 +30,8 @@ def find_file_size():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # 1. Laad API keys uit .env (Tip: zet load_dotenv() liever bovenaan je script buiten de route)
+    # 1. Laad API keys uit .env
+    load_dotenv()
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     JEV_API_KEY = os.getenv("JEV_API_KEY")
 
@@ -49,13 +50,33 @@ def find_file_size():
     if len(image_bytes) == 0:
         return jsonify({"error": "Het geüploade bestand is leeg."}), 400
 
+    # AFBEELDING OPTIMALISEREN OM MEMORY LEAKS / OOM CRASHES OP RENDER TE VOORKOMEN
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img.load()  # Laad pixeldata in geheugen
+        
+        # Converteer naar RGB (verwijdert eventuele zware alfakanalen / transparantie)
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+            
+        # Verklein naar max 1024x1024 om geheugenverbruik drastisch te verlagen
+        img.thumbnail((1024, 1024))
+        
+        # Sla op in een schone buffer als gecomprimeerde JPEG
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=85)
+        buffer.seek(0)
+        
+        # Open de geoptimaliseerde afbeelding voor Gemini
+        image = Image.open(buffer)
+    except Exception as img_err:
+        print(f"❌ Fout bij verwerken afbeelding: {str(img_err)}")
+        return jsonify({"error": f"Ongeldige afbeelding: {str(img_err)}"}), 400
+
     client = genai.Client(
         api_key=GEMINI_API_KEY,
         http_options=types.HttpOptions(timeout=120000)
     )
-    
-    # Open de afbeelding via BytesIO zodat Pillow er zeker mee overweg kan
-    image = Image.open(io.BytesIO(image_bytes))
 
     prompt = """
     Analyseer deze foto van het boek. Extraheer de volgende gegevens in een compacte Nederlandse tekst:
@@ -70,7 +91,6 @@ def find_file_size():
     start_gemini = time.time()
     try:
         gemini_response = client.models.generate_content(
-            model="gemini-3.5-flash-lite",  # Aangepast naar een geldig, bestaand model
             contents=[image, prompt]
         )
         book_state = gemini_response.text
@@ -81,7 +101,7 @@ def find_file_size():
     end_gemini = time.time()
     gemini_duration = round(end_gemini - start_gemini, 2)
     print(f"⏱️ Gemini call duurde: {gemini_duration} seconden")
-    
+
     print("\n--- GEMINI EXTRACTION (BOOK STATE) ---")
     print(book_state)
     print("--------------------------------------\n")
