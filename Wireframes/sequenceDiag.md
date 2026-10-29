@@ -9,7 +9,7 @@ sequenceDiagram
 
     MaaktFoto->>App: Foto
     App->>Flask: Foto
-    create participant Gemini
+    create participant Gemini as Gemini
     Flask->>Gemini: Vraagt om tekstbeschrijving
     Gemini-->>Flask: Antwoord
     destroy Gemini
