@@ -1,21 +1,28 @@
-
-```mermaid
+%%{init: {
+  "sequence": {
+    "actorMargin": 10,
+    "messageMargin": 10,
+    "messageFontSize": 11,
+    "actorFontSize": 11,
+    "noteFontSize": 11,
+    "wrap": true
+  }
+}}%%
 sequenceDiagram
     autonumber
-    actor MaaktFoto as Maakt foto
-    participant App as App
-    participant Flask as Python@Render
-    participant Gemini as Gemini
-    participant Jev as Jev
+    actor M as Foto
+    participant A as App
+    participant R as Render
+    participant G as Gemini
+    participant J as Jev
 
-    MaaktFoto->>App: Foto
-    App->>Flask: Foto
-    Flask->>Gemini: Vraagt om tekstbeschrijving
-    Gemini-->>Flask: Antwoord
-    Flask->>Jev: Vraagt om cat. en prijs
-    Jev-->>Flask: Antwoord
-    Flask-->>App: Antwoord
-    App-->>MaaktFoto: (vraagt om verheldering)
-    MaaktFoto-->>App: Antwoord
-    App-->>App: Maakt sticker
-```
+    M->>A: Foto
+    A->>R: Foto
+    R->>G: Vraag beschrijving
+    G-->>R: Antwoord
+    R->>J: Vraag cat/prijs
+    J-->>R: Antwoord
+    R-->>A: Antwoord
+    A-->>M: Verheldering?
+    M-->>A: Antwoord
+    Note over A: Maakt sticker
