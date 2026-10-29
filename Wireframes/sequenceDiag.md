@@ -6,12 +6,16 @@ sequenceDiagram
     participant App as App
     participant Flask as Python@Render
     participant Gemini as Gemini
+    participant Jev as Jev
 
     MaaktFoto->>App: Foto
     App->>Flask: Foto
     Flask->>Gemini: Vraagt om tekstbeschrijving
     Gemini-->>Flask: Antwoord
+    Flask->>Jev: Vraagt om cat. en prijs
+    Jev-->>Flask: Antwoord
     Flask-->>App: Antwoord
-    App->>App: Test call
-    Note over MaaktFoto: Kies cat / kies prijs
+    App-->>MaaktFoto: (vraagt om verheldering)
+    MaaktFoto-->>App: Antwoord
+    App-->>App: Maakt sticker
 ```
