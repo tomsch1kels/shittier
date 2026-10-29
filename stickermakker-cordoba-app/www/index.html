@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>StickerMakker</title>
   <style>
-    * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -18,6 +18,7 @@
       gap: 20px;
       background: linear-gradient(180deg, #f5f0e1 0%, #e8e0d0 100%);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      position: relative;
     }
 
     .container {
@@ -101,6 +102,75 @@
       right: -20px;
     }
 
+    /* Vaste knop rechtsonder voor het sequence diagram */
+    .seq-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 100;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .seq-btn:active {
+      transform: scale(0.95);
+      background-color: #1b5e20;
+    }
+
+    /* Modal pop-up overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow: auto;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      height: auto;
+      max-height: 75vh;
+      margin: 0 auto;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #333;
+    }
+
     /* Responsive voor smartphones - 100% breder */
     @media (max-width: 768px) {
       body {
@@ -137,6 +207,13 @@
       .presents::before,
       .presents::after {
         font-size: 11px;
+      }
+
+      .seq-btn {
+        bottom: 12px;
+        right: 12px;
+        padding: 8px 12px;
+        font-size: 12px;
       }
     }
 
@@ -182,5 +259,33 @@
     <img src="img/logo.jpeg" alt="StickerMakker logo">
     <button href="take_photo.html">Begin</button>
   </div>
+
+  <!-- Vaste knop in de hoek rechtsonder -->
+  <button class="seq-btn" onclick="openModal()">Seq. Diag</button>
+
+  <!-- Pop-up overlay met het diagram -->
+  <div id="seqModal" class="modal-overlay" onclick="closeModalOnOutside(event)">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal()">&times;</button>
+      <h3 style="margin-top: 0; color: #2e7d32; font-size: 16px;">Sequence Diagram</h3>
+      <img src="img/sequence-diagram.png" alt="Sequence Diagram">
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('seqModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('seqModal').style.display = 'none';
+    }
+
+    function closeModalOnOutside(event) {
+      if (event.target === document.getElementById('seqModal')) {
+        closeModal();
+      }
+    }
+  </script>
 </body>
 </html>
