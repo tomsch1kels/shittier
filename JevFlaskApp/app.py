@@ -7,19 +7,19 @@ from google.genai import types  # Nodig voor HttpOptions (timeout)
 from datetime import datetime
 import requests
 import os
+import io # Zorg dat deze bovenaan je imports staat
 import json
 import time  # Nodig voor het meten van de duur
 
 app = Flask(__name__)
 CORS(app)
-
 @app.route('/find', methods=['POST'])
 def find_file_size():
     print("=== DEBUG ===")
     print("Form keys:", list(request.form.keys()))
     print("Files keys:", list(request.files.keys()))
     print("Content-Type:", request.content_type)
-    print("Data len:", len(request.data))
+    # Verwijder of pas print(len(request.data)) aan, want dat is altijd 0 bij multipart uploads
     print("============")
     
     if 'image' not in request.files:
@@ -30,8 +30,7 @@ def find_file_size():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
-    # 1. Laad API keys uit .env
-    load_dotenv()
+    # 1. Laad API keys uit .env (Tip: zet load_dotenv() liever bovenaan je script buiten de route)
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     JEV_API_KEY = os.getenv("JEV_API_KEY")
 
@@ -43,19 +42,27 @@ def find_file_size():
     # ---------------------------------------------------------
     print("📸 Foto wordt geanalyseerd door Gemini Flash...")
 
-    # Client configureren met een timeout van 120 seconden (120.000 ms)
+    # Lees de bestandsbytes veilig in het geheugen
+    image_bytes = file.read()
+    print(f"DEBUG: Gelezen bytes van upload: {len(image_bytes)}")
+    
+    if len(image_bytes) == 0:
+        return jsonify({"error": "Het geüploade bestand is leeg."}), 400
+
     client = genai.Client(
         api_key=GEMINI_API_KEY,
         http_options=types.HttpOptions(timeout=120000)
     )
-    image = Image.open(file)
+    
+    # Open de afbeelding via BytesIO zodat Pillow er zeker mee overweg kan
+    image = Image.open(io.BytesIO(image_bytes))
 
     prompt = """
     Analyseer deze foto van het boek. Extraheer de volgende gegevens in een compacte Nederlandse tekst:
-- Titel
-- Auteur
-- Staat/Conditie (bijv. vergeelde pagina's, leesvouwen, hoekschade, nieuwstaat, etc.)
-- Details (formaat, hardcover/paperback, eventuele opvallende kenmerken)
+    - Titel
+    - Auteur
+    - Staat/Conditie (bijv. vergeelde pagina's, leesvouwen, hoekschade, nieuwstaat, etc.)
+    - Details (formaat, hardcover/paperback, eventuele opvallende kenmerken)
 
     Geef alleen deze beschrijving terug zonder extra beleefdheidsflosfels.
     """
@@ -63,17 +70,18 @@ def find_file_size():
     start_gemini = time.time()
     try:
         gemini_response = client.models.generate_content(
-            model="gemini-3.5-flash-lite", 
+            model="gemini-2.5-flash",  # Aangepast naar een geldig, bestaand model
             contents=[image, prompt]
         )
         book_state = gemini_response.text
     except Exception as e:
+        print(f"❌ Gemini API error: {str(e)}")
         return jsonify({"error": f"Gemini API error: {str(e)}"}), 500
     
     end_gemini = time.time()
     gemini_duration = round(end_gemini - start_gemini, 2)
     print(f"⏱️ Gemini call duurde: {gemini_duration} seconden")
-
+    
     print("\n--- GEMINI EXTRACTION (BOOK STATE) ---")
     print(book_state)
     print("--------------------------------------\n")
