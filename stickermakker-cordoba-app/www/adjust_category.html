@@ -5,26 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Categorie</title>
   <style>
+    :root {
+      --bg: #fcf8ef;          /* Achtergrondkleur */
+      --surface: #f3eee2;     /* Subtiele tint voor elementen */
+      --line: #e2dbcd;        /* Randkleur afgestemd op de achtergrond */
+      --text: #1a1a1a;
+      --muted: #666666;
+      --accent: #5fac57;      /* Voorgrond/Accentkleur */
+      --disabled: #cccccc;
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, Roboto, sans-serif; margin: 0; padding: 16px 0 80px; }
-    h1 { font-size: 15px; color: #666; margin: 0 16px 8px; font-weight: 500; }
+    
+    body { 
+      font-family: -apple-system, Roboto, sans-serif; 
+      margin: 0; 
+      padding: 16px 0 80px; 
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    h1 { 
+      font-size: 15px; 
+      color: var(--muted); 
+      margin: 0 16px 8px; 
+      font-weight: 500; 
+    }
+    
     .categorie-lijst { list-style: none; margin: 0; padding: 0; }
+    
     .categorie {
-      display: block; color: #333; font-size: 13px; padding: 10px 16px;
-      border-bottom: 1px solid #f0f0f0; cursor: pointer;
+      display: block; 
+      color: var(--text); 
+      font-size: 13px; 
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--line); 
+      cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .categorie.selected { background: #6d4aff; color: #fff; }
-    .balk { height: 4px; background: #e5e5ea; margin-top: 6px; overflow: hidden; }
-    .balk-vulling { height: 100%; width: 0; background: #6d4aff; transition: width .6s ease; }
-    .categorie.selected .balk { background: rgba(255,255,255,.3); }
-    .categorie.selected .balk-vulling { background: #fff; }
+    
+    .categorie.selected { 
+      background: var(--accent); 
+      color: #fff; 
+    }
+    
+    .balk { 
+      height: 4px; 
+      background: var(--line); 
+      margin-top: 6px; 
+      overflow: hidden; 
+    }
+    
+    .balk-vulling { 
+      height: 100%; 
+      width: 0; 
+      background: var(--accent); 
+      transition: width .6s ease; 
+    }
+    
+    .categorie.selected .balk { 
+      background: rgba(255,255,255,.3); 
+    }
+    
+    .categorie.selected .balk-vulling { 
+      background: #fff; 
+    }
+    
     .volgende {
       position: fixed; left: 16px; right: 16px; bottom: 16px;
       padding: 14px; border: 0; border-radius: 8px;
-      background: #6d4aff; color: #fff; font-size: 14px; font-weight: 600;
+      background: var(--accent); 
+      color: #fff; 
+      font-size: 14px; 
+      font-weight: 600;
+      cursor: pointer;
     }
-    .volgende[disabled] { background: #ccc; }
+    
+    .volgende[disabled] { 
+      background: var(--disabled); 
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -97,13 +157,11 @@
         balk.appendChild(vulling);
         li.appendChild(balk);
 
-        // FIX: Gebruik 'li' in plaats van 'this' in de callback
-        // 'li' wordt in de closure vastgehouden met de juiste waarde
         li.addEventListener("click", function () {
           var oud = lijst.querySelector(".categorie.selected");
           if (oud) oud.classList.remove("selected");
           this.classList.add("selected");
-          gekozen = this.dataset.id;   // ← Was "this.dataset.id" (bug!)
+          gekozen = this.dataset.id;
           knop.disabled = false;
         });
 
