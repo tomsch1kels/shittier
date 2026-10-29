@@ -1,10 +1,10 @@
 :root {
-  --bg: #ffffff;
-  --surface: #f5f5f5;
-  --line: #d8d8d8;
+  --bg: #fcf8ef;          /* Achtergrondkleur */
+  --surface: #f3eee2;     /* Iets donkerdere tint van de achtergrond voor elementen */
+  --line: #e2dbcd;        /* Subtiele randkleur afgestemd op de achtergrond */
   --text: #1a1a1a;
   --muted: #777777;
-  --accent: #4CAF50;
+  --accent: #5fac57;      /* Voorgrond/Accentkleur */
   --disabled: #bbbbbb;
 }
 
@@ -15,6 +15,7 @@
     --line: #333333;
     --text: #f0f0f0;
     --muted: #9a9a9a;
+    --accent: #5fac57;    /* Accentkleur ook in donkere modus behouden */
   }
 }
 
