@@ -4,15 +4,14 @@ sequenceDiagram
     autonumber
     actor MaaktFoto as Maakt foto
     participant App as App
+    participant Gemini as Gemini
     participant Flask as Python@Render
     participant Jev as Jev
 
     MaaktFoto->>App: Foto
     App->>Flask: Foto
-    create participant Gemini as Gemini
     Flask->>Gemini: Vraagt om tekstbeschrijving
     Gemini-->>Flask: Antwoord
-    destroy Gemini
     Flask->>Jev: Vraagt om cat. en prijs
     Jev-->>Flask: Antwoord
     Flask-->>App: Antwoord
