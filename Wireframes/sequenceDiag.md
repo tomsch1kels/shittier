@@ -5,7 +5,8 @@
     "messageFontSize": 11,
     "actorFontSize": 11,
     "noteFontSize": 11,
-    "wrap": true
+    "wrap": true,
+    "mirrorActors": false
   }
 }}%%
 sequenceDiagram
