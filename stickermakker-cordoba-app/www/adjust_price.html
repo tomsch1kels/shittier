@@ -5,32 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prijs</title>
   <style>
+    :root {
+      --bg: #fcf8ef;          /* Achtergrondkleur */
+      --surface: #f3eee2;     /* Subtiele tint voor elementen */
+      --line: #e2dbcd;        /* Randkleur afgestemd op de achtergrond */
+      --text: #1a1a1a;
+      --muted: #666666;
+      --accent: #5fac57;      /* Voorgrond/Accentkleur */
+      --disabled: #cccccc;
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, Roboto, sans-serif; margin: 0; padding: 16px; }
-    h1 { font-size: 15px; color: #666; margin: 0 0 4px; font-weight: 500; }
-    .gekozen { font-size: 13px; color: #6d4aff; margin: 0 0 16px; }
-    .prijs-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    
+    body { 
+      font-family: -apple-system, Roboto, sans-serif; 
+      margin: 0; 
+      padding: 16px; 
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    h1 { 
+      font-size: 15px; 
+      color: var(--muted); 
+      margin: 0 0 4px; 
+      font-weight: 500; 
+    }
+    
+    .gekozen { 
+      font-size: 13px; 
+      color: var(--accent); 
+      margin: 0 0 16px; 
+    }
+    
+    .prijs-grid { 
+      display: grid; 
+      grid-template-columns: repeat(5, 1fr); 
+      gap: 8px; 
+    }
+    
     .prijs-vak {
       position: relative; aspect-ratio: 1; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      border: 1px solid #ddd; border-radius: 4px;
-      font-size: 12px; color: #333; cursor: pointer;
+      border: 1px solid var(--line); border-radius: 4px;
+      font-size: 12px; color: var(--text); cursor: pointer;
+      background: var(--surface);
       -webkit-tap-highlight-color: transparent;
     }
+    
     .prijs-vak .vulling {
       position: absolute; left: 0; top: 0; bottom: 0; width: 0;
-      background: #ece9ff; transition: width .6s ease; z-index: 0;
+      background: #e5ede3; transition: width .6s ease; z-index: 0;
     }
+    
     .prijs-vak span.label { position: relative; z-index: 1; }
-    .prijs-vak.selected { border-color: #6d4aff; border-width: 2px; color: #6d4aff; font-weight: 600; }
-    .prijs-vak.selected .vulling { background: rgba(109,74,255,.18); }
-    .terug { display: inline-block; margin-top: 20px; font-size: 13px; color: #6d4aff; text-decoration: none; }
+    
+    .prijs-vak.selected { 
+      border-color: var(--accent); 
+      border-width: 2px; 
+      color: var(--accent); 
+      font-weight: 600; 
+    }
+    
+    .prijs-vak.selected .vulling { 
+      background: rgba(95, 172, 87, 0.18); 
+    }
+    
+    .terug { 
+      display: inline-block; 
+      margin-top: 20px; 
+      font-size: 13px; 
+      color: var(--accent); 
+      text-decoration: none; 
+    }
+    
     .volgende {
       position: fixed; left: 16px; right: 16px; bottom: 16px;
       padding: 14px; border: 0; border-radius: 8px;
-      background: #6d4aff; color: #fff; font-size: 14px; font-weight: 600;
+      background: var(--accent); color: #fff; font-size: 14px; font-weight: 600;
+      cursor: pointer;
     }
-    .volgende[disabled] { background: #ccc; }
+    
+    .volgende[disabled] { 
+      background: var(--disabled); 
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
