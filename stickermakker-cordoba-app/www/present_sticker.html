@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Presenteer sticker</title>
   <style>
+    :root {
+      --bg: #fcf8ef;          /* Achtergrondkleur */
+      --surface: #f3eee2;     /* Subtiele tint voor elementen */
+      --line: #e2dbcd;        /* Randkleur afgestemd op de achtergrond */
+      --text: #1a1a1a;
+      --muted: #666666;
+      --accent: #5fac57;      /* Voorgrond/Accentkleur */
+      --disabled: #cccccc;
+    }
+
     * { box-sizing: border-box; }
 
     body {
@@ -18,7 +28,8 @@
       padding: 80px 20px 40px;
       overflow: auto;
       font-family: system-ui, sans-serif;
-      background: #ffffff;
+      background: var(--bg);
+      color: var(--text);
     }
 
     /* Groep waarin titel en auteur onder elkaar staan */
@@ -33,11 +44,11 @@
 
     /* Horizontale tekstvelden - alle rotatie verwijderd */
     #titel, #auteur, #weeknummer, #categoryId, #prijs {
-      writing-mode: horizontal-tl;
+      writing-mode: horizontal-tb;
       transform: none;
       font-size: 24px;
       text-transform: uppercase;
-      color: #6d4aff;
+      color: var(--accent);
       margin: 8px 0;
       white-space: nowrap;
     }
@@ -52,6 +63,7 @@
     #auteur {
       font-size: 24px;
       font-weight: 400;
+      color: var(--text);
     }
 
     /* De overige velden blijven vetgedrukt */
@@ -69,6 +81,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--line);
     }
 
     /* Het canvas - geen rotatie meer */
@@ -77,14 +92,14 @@
       background: #ffffff;
     }
 
-    #terug {
+    #terreg {
       position: fixed;
       top: 20px;
       left: 20px;
       font-size: 20px;
       font-weight: 600;
       padding: 10px 20px;
-      background-color: #6d4aff;
+      background-color: var(--accent);
       color: white;
       text-decoration: none;
       border-radius: 8px;
