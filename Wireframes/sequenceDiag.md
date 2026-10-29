@@ -1,3 +1,4 @@
+```mermaid
 %%{init: {
   "sequence": {
     "actorMargin": 10,
@@ -27,3 +28,4 @@ sequenceDiagram
     A-->>M: Verheldering?
     M-->>A: Antwoord
     Note over A: Maakt sticker
+```
