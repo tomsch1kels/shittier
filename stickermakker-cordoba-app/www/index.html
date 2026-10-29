@@ -16,7 +16,7 @@
       align-items: center;
       justify-content: center;
       gap: 20px;
-      background: linear-gradient(180deg, #f5f0e1 0%, #e8e0d0 100%);
+      background: linear-gradient(180deg, #fcf8ef 0%, #fcf8ef 100%);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       position: relative;
     }
@@ -28,7 +28,22 @@
       gap: 20px;
       width: 100%;
       max-width: 1000px;
+      min-height: 100vh;
       padding: 24px;
+      /* ruimte onderaan voor de vaste Seq. Diag knop */
+      padding-bottom: 92px;
+    }
+
+    /* Logogroep: groeit mee en blijft verticaal gecentreerd,
+       zodat de Begin-knop onderaan de pagina plakt */
+    .logos {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
     }
 
     /* Logo afbeeldingen */
@@ -54,28 +69,28 @@
       max-height: 49px;  /* 70px × 0.7 = 30% kleiner */
     }
 
-    /* Collaboratie kruisen - krachtig groen */
+    /* Collaboratie kruisen - nieuw groen #5fac57 */
     .times {
       font-weight: 900;
       font-size: 40px;
-      color: #2e7d32;
+      color: #5fac57;
       text-shadow: 
-        0 0 8px rgba(46, 125, 50, 0.5),
+        0 0 8px rgba(95, 172, 87, 0.5),
         0 2px 4px rgba(0, 0, 0, 0.3);
       line-height: 1;
       margin: 0;
       padding: 0 8px;
     }
 
-    /* Presents tekst - zelfde groene stijl maar kleiner */
+    /* Presents tekst - nieuw groen #5fac57 */
     .presents {
       font-weight: 900;
       font-size: 16px;
-      color: #388e3c;
+      color: #5fac57;
       text-transform: uppercase;
       letter-spacing: 4px;
       text-shadow: 
-        0 1px 4px rgba(56, 142, 60, 0.5),
+        0 1px 4px rgba(95, 172, 87, 0.5),
         0 2px 6px rgba(0, 0, 0, 0.3);
       line-height: 1;
       margin: 0;
@@ -88,7 +103,7 @@
     .presents::after {
       content: '◆';
       position: absolute;
-      color: #388e3c;
+      color: #5fac57;
       font-size: 12px;
       top: 50%;
       transform: translateY(-50%);
@@ -102,12 +117,38 @@
       right: -20px;
     }
 
-    /* Vaste knop rechtsonder voor het sequence diagram */
+    /* Grote Begin-knop onderaan - nieuw groen #5fac57 */
+    .begin-btn {
+      display: block;
+      width: 100%;
+      margin: 0;
+      padding: 22px 24px;
+      background-color: #5fac57;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: background 0.2s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .begin-btn:active {
+      transform: scale(0.98);
+      background-color: #4a9c43;
+    }
+
+    /* Vaste knop rechtsonder voor het sequence diagram - nieuw groen #5fac57 */
     .seq-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #2e7d32;
+      background-color: #5fac57;
       color: white;
       border: none;
       padding: 10px 16px;
@@ -122,7 +163,7 @@
 
     .seq-btn:active {
       transform: scale(0.95);
-      background-color: #1b5e20;
+      background-color: #4a9c43;
     }
 
     /* Modal pop-up overlay */
@@ -181,7 +222,12 @@
       .container {
         gap: 18px;
         padding: 20px;
+        padding-bottom: 78px;
         max-width: 100%;
+      }
+
+      .logos {
+        gap: 18px;
       }
 
       img {
@@ -209,6 +255,11 @@
         font-size: 11px;
       }
 
+      .begin-btn {
+        padding: 20px 20px;
+        font-size: 23px;
+      }
+
       .seq-btn {
         bottom: 12px;
         right: 12px;
@@ -222,6 +273,11 @@
       .container {
         gap: 14px;
         padding: 16px;
+        padding-bottom: 66px;
+      }
+
+      .logos {
+        gap: 14px;
       }
 
       img {
@@ -245,19 +301,27 @@
       .presents::after {
         display: none;
       }
+
+      .begin-btn {
+        padding: 18px 16px;
+        font-size: 21px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <img src="img/doelDelflandLogo.jpeg" alt="Doel Delfland logo">
-    <p class="times">×</p>
-    <img src="img/RataPlan-logo-header.webp" alt="RataPlan logo">
-    <p class="times">×</p>
-    <img src="img/lumoLogo.png" alt="Lumo logo">
-    <p class="presents">PRESENTEERT</p>
-    <img src="img/logo.jpeg" alt="StickerMakker logo">
-    <button href="take_photo.html">Begin</button>
+    <div class="logos">
+      <img src="img/doelDelflandLogo.jpeg" alt="Doel Delfland logo">
+      <p class="times">×</p>
+      <img src="img/RataPlan-logo-header.webp" alt="RataPlan logo">
+      <p class="times">×</p>
+      <img src="img/lumoLogo.png" alt="Lumo logo">
+      <p class="presents">PRESENTEERT</p>
+      <img src="img/logo.jpeg" alt="StickerMakker logo">
+    </div>
+
+    <a href="take_photo.html" class="begin-btn">Begin</a>
   </div>
 
   <!-- Vaste knop in de hoek rechtsonder -->
@@ -267,7 +331,7 @@
   <div id="seqModal" class="modal-overlay" onclick="closeModalOnOutside(event)">
     <div class="modal-content">
       <button class="close-modal" onclick="closeModal()">&times;</button>
-      <h3 style="margin-top: 0; color: #2e7d32; font-size: 16px;">Sequence Diagram</h3>
+      <h3 style="margin-top: 0; color: #5fac57; font-size: 16px;">Sequence Diagram</h3>
       <img src="img/sequence-diagram.png" alt="Sequence Diagram">
     </div>
   </div>
