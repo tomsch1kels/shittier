@@ -3,11 +3,15 @@
 sequenceDiagram
     autonumber
     actor MaaktFoto as Maakt foto
-    participant Flask as Render Flask app
+    participant App as App
+    participant Flask as Python@Render
     participant Gemini as Gemini
 
-    MaaktFoto->>Flask: Maakt foto / stuur data
-    Flask->>Gemini: Gemini call (categorie / opties)
+    MaaktFoto->>App: Foto
+    App->>Flask: Foto
+    Flask->>Gemini: Vraagt om tekstbeschrijving
     Gemini-->>Flask: Antwoord
+    Flask-->>App: Antwoord
+    App->>App: Test call
     Note over MaaktFoto: Kies cat / kies prijs
 ```
