@@ -167,13 +167,13 @@ def find_file_size():
 
             # Retourneer de respons inclusief de timmings
             return jsonify({
-                "success": True,
-                "book_state": book_state,
-                "jev_result": result,
                 "timings": {
                     "gemini_seconds": gemini_duration,
                     "jev_seconds": jev_duration
-                }
+                },
+                "success": True,
+                "book_state": book_state,
+                "jev_result": result
             }), 200
             
         else:
