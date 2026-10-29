@@ -12,7 +12,7 @@
 }}%%
 sequenceDiagram
     autonumber
-    actor M as Foto
+    actor M as Gebruiker
     participant A as App
     participant R as Render
     participant G as Gemini
