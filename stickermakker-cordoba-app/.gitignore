@@ -25,3 +25,4 @@ node_modules/
 /platforms/
 
 .env
+www/js/env-config.js
