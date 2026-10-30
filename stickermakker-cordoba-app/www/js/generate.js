@@ -1,10 +1,5 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
-const CONFIG = {
-  GEMINI_API_KEY: 'HIER_JE_API_SLEUTEL',
-  JEV_API_KEY: 'HIER_JE_API_SLEUTEL'
-};
-
 function onDeviceReady() {
   const el = {
     back:       document.getElementById('btn-back'),
