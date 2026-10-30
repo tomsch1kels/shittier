@@ -1,5 +1,10 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
+const CONFIG = {
+  GEMINI_API_KEY: 'HIER_JE_API_SLEUTEL',
+  JEV_API_KEY: 'HIER_JE_API_SLEUTEL'
+};
+
 function onDeviceReady() {
   const el = {
     back:       document.getElementById('btn-back'),
@@ -54,7 +59,6 @@ function escapeRegex(str) {
 
 /**
  * Zet willekeurige JSON-structuur om naar platte tekst met echte newlines.
- * Voorbeeld: {"Titel": "Foo", "Auteur": "Bar"} → "Foo\nBar"
  */
 function verzamelTekst(data) {
   if (data == null) return '';
@@ -66,32 +70,27 @@ function verzamelTekst(data) {
 
 /**
  * Haalt de waarde van één veld op uit LLM-tekst of JSON-object.
- * Ondersteunt: -, *, •, –, · als opsommingsteken, nummering (1. / 1)),
- * markdown (**vet**, __vet__, *cursief*, `code`), : of ： als scheiding,
- * en zowel LF als CRLF regeleindes.
- * Geeft null terug als het veld niet gevonden wordt.
  */
 function getValueFromBookState(tekst, fieldName) {
   if (!tekst || !fieldName) return null;
 
-  // Accepteer ook objecten/arrays rechtstreeks (convert naar platte tekst)
   if (typeof tekst !== 'string') tekst = verzamelTekst(tekst);
   if (!tekst) return null;
 
   const label = escapeRegex(String(fieldName).trim());
 
   const regex = new RegExp(
-    '(?:^|\\r?\\n)' +                    // begin van een regel
-    '[ \\t>]*' +                         // inspringing of quote-marker
+    '(?:^|\\r?\\n)' +                      // begin van een regel
+    '[ \\t>]*' +                           // inspringing of quote-marker
     '(?:[-*•–·]|\\d{1,3}[.)])?' +        // optioneel opsommingsteken of nummer
     '[ \\t]*' +
-    '(?:\\*\\*|__|\\*|_|`)?' +           // openingsmarkdown
+    '(?:\\*\\*|__|\\*|_|`)?' +            // openingsmarkdown
     label +
-    '(?!\\p{L}|\\p{N})' +                // geen half woord matchen (Prijs ≠ PrijsIncl)
-    '(?:\\*\\*|__|\\*|_|`)?' +           // sluitmarkdown
-    '[ \\t]*[:：][ \\t]*' +              // dubbele punt (ASCII of full-width)
-    '([^\\r\\n]*)',                      // waarde: rest van de regel
-    'iu'                                 // i = ignoreCase, u = unicode
+    '(?!\\p{L}|\\p{N})' +                  // geen half woord matchen
+    '(?:\\*\\*|__|\\*|_|`)?' +            // sluitmarkdown
+    '[ \\t]*[:：][ \\t]*' +                 // dubbele punt
+    '([^\\r\\n]*)',                        // waarde: rest van de regel
+    'iu'                                   // i = ignoreCase, u = unicode
   );
 
   const m = tekst.match(regex);
@@ -100,50 +99,146 @@ function getValueFromBookState(tekst, fieldName) {
   return m[1]
     .replace(/[ \t]+$/, '')          // spaties/tabs aan het eind
     .replace(/[*_`]+$/, '')          // markdown aan het eind
-    .replace(/^[*]+/, '')            // ✓ sterretjes aan het BEGIN (één of meer)
+    .replace(/^[*]+/, '')            // sterretjes aan het BEGIN
     .trim();
 }
 
-/* ---------- Foto Upload & Analyse ---------------------------- */
+/* ---------- Foto Upload & Analyse (Direct vanuit JS) --------- */
 
 async function uploadFoto(photoDataUrl) {
   try {
-    // Optioneel: toon een melding dat de foto wordt verstuurd
-    showTemporaryResult({ status: "Bezig met analyseren..." });
-
-    // Converteer DataURL → Blob
-    const response = await fetch(photoDataUrl);
-    const blob = await response.blob();
-
-    const formData = new FormData();
-    formData.append('image', blob, 'canvas.jpg'); // filename is verplicht voor Flask
-
-    const res = await fetch('https://shittier.onrender.com/find', {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!res.ok) throw new Error('Server gaf status ' + res.status);
-
-    // ⚠️ CRUCIAAL: Eerst tekst ophalen, dan pas parsen naar JSON
-    const ruweTekst = await res.text();
-    console.log('Ruw antwoord van server:', ruweTekst);
-
-    let result;
-    try {
-      result = JSON.parse(ruweTekst);
-    } catch (e) {
-      // Geen geldige JSON? Gebruik de tekst zelf
-      result = ruweTekst;
+    if (!CONFIG.GEMINI_API_KEY || !CONFIG.JEV_API_KEY) {
+      throw new Error("Zorg dat zowel GEMINI_API_KEY als JEV_API_KEY zijn ingesteld in generate.js!");
     }
 
-    // Veldwaarden uitlezen uit het antwoord (werk met string-waarden, niet null checks)
-    let titel  = getValueFromBookState(result, 'Titel');
-    let auteur = getValueFromBookState(result, 'Auteur');
+    showTemporaryResult({ status: "📸 Foto wordt geanalyseerd door Gemini..." });
+    console.log("📸 Foto wordt geanalyseerd door Gemini...");
 
+    // Splits base64 data URL om de pure base64 string te krijgen
+    const base64Data = photoDataUrl.split(',')[1];
+    if (!base64Data) {
+      throw new Error("Ongeldige foto data URL.");
+    }
+
+    // ---------------------------------------------------------
+    // STAP 1: Gemini API aanroepen via REST v1beta
+    // ---------------------------------------------------------
+    const startGemini = performance.now();
+    
+    // Je kunt 'gemini-1.5-flash' gebruiken (of 'gemini-2.5-flash' / 'gemini-3.5-flash-lite' indien ondersteund door je endpoint)
+const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${CONFIG.GEMINI_API_KEY}`;    
+    const geminiPayload = {
+      contents: [
+        {
+          parts: [
+            {
+              inline_data: {
+                mime_type: "image/jpeg",
+                data: base64Data
+              }
+            },
+            {
+              text: `Analyseer deze foto van het boek. Extraheer de volgende gegevens in een compacte Nederlandse tekst:
+- Titel
+- Auteur
+- Staat/Conditie (bijv. vergeelde pagina's, leesvouwen, hoekschade, nieuwstaat, etc.)
+- Details (formaat, hardcover/paperback, eventuele opvallende kenmerken)
+
+Geef alleen deze beschrijving terug zonder extra beleefdheidsflosfels.`
+            }
+          ]
+        }
+      ]
+    };
+
+    const geminiRes = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(geminiPayload)
+    });
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      throw new Error(`Gemini API error (${geminiRes.status}): ${errText}`);
+    }
+
+    const geminiJson = await geminiRes.json();
+    const book_state = geminiJson.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!book_state) {
+      throw new Error("Geen geldig antwoord ontvangen van Gemini.");
+    }
+
+    const endGemini = performance.now();
+    const geminiDuration = Number(((endGemini - startGemini) / 1000).toFixed(2));
+    console.log(`⏱️ Gemini call duurde: ${geminiDuration} seconden`);
+    console.log("\n--- GEMINI EXTRACTION (BOOK STATE) ---\n", book_state);
+
+    // ---------------------------------------------------------
+    // STAP 2: JEV Decision API aanroepen via OpenRouter
+    // ---------------------------------------------------------
+    showTemporaryResult({ status: "⏳ JEV Decision API wordt aangeroepen...", book_state });
+    console.log("⏳ JEV Decision API wordt aangeroepen...");
+
+    const jevUrl = "https://openrouter.ai/api/alpha/decisions";
+    const jevHeaders = {
+      "Authorization": `Bearer ${CONFIG.JEV_API_KEY.trim()}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": window.location.origin || "http://localhost:3000",
+      "X-Title": "StickerMakker"
+    };
+
+    const jevPayload = {
+      "model": "typesafe/jev-1.13",
+      "state": book_state,
+      "questions": {
+        "categorie": {
+          "type": "choice",
+          "instructions": "Bepaal in welke winkelcategorie dit boek het beste past.",
+          "criteria": {
+            "1": "Bedrijfskunde & economie",
+            "4": "Educatief, opvoeding & onderwijs",
+            "7": "Geschiedenis & koningshuis",
+            "8": "Gezondheid & geneeskunde",
+            "9": "Godsdienst & religie",
+            "10": "Hobby",
+            "17": "Mens & maatschappij",
+            "18": "Natuur & milieu",
+            "20": "Poëzie",
+            "21": "Romans"
+          }
+        },
+        "verkoopprijs": {
+          "type": "score",
+          "instructions": "Bepaal een geschikte tweedehands verkoopprijs in EUR voor dit boek. Kies uit het bereik van 0,50 tot 5,00 euro.",
+          "criteria": ["0.50", "1.00", "1.50", "2.00", "2.50", "3.00", "3.50", "4.00", "4.50", "5.00"]
+        }
+      }
+    };
+
+    const startJev = performance.now();
+    const jevRes = await fetch(jevUrl, {
+      method: 'POST',
+      headers: jevHeaders,
+      body: JSON.stringify(jevPayload)
+    });
+
+    const endJev = performance.now();
+    const jevDuration = Number(((endJev - startJev) / 1000).toFixed(2));
+    console.log(`⏱️ JEV API call duurde: ${jevDuration} seconden`);
+
+    const jevResultJson = await jevRes.json();
+
+    if (!jevRes.ok) {
+      throw new Error(`JEV API failed (${jevRes.status}): ${JSON.stringify(jevResultJson)}`);
+    }
+
+    // Resultaten verwerken
+    let titel  = getValueFromBookState(book_state, 'Titel');
+    let auteur = getValueFromBookState(book_state, 'Auteur');
 
     if (titel === null)  titel  = 'Titel niet gevonden.';
-    if (auteur === null) auteur = 'Auteur niet gevonden.';  // ← Was !== (fout!), nu ===
+    if (auteur === null) auteur = 'Auteur niet gevonden.';
 
     console.log("Titel:", titel);
     console.log("Auteur:", auteur);
@@ -151,10 +246,20 @@ async function uploadFoto(photoDataUrl) {
     localStorage.setItem("titel", titel);
     localStorage.setItem("auteur", auteur);
 
-    localStorage.setItem("assessmentResult", JSON.stringify(result));
+    const finalResult = {
+      timings: {
+        gemini_seconds: geminiDuration,
+        jev_seconds: jevDuration
+      },
+      success: true,
+      book_state: book_state,
+      jev_result: jevResultJson
+    };
 
-    // Toon het resultaat tijdelijk netjes in de UI
-    showTemporaryResult(result);
+    localStorage.setItem("assessmentResult", JSON.stringify(finalResult));
+
+    // Toon het resultaat netjes in de UI
+    showTemporaryResult(finalResult);
 
   } catch (error) {
     console.error("Upload error:", error);
@@ -164,13 +269,10 @@ async function uploadFoto(photoDataUrl) {
 
 /* ---------- Overlay Helper ----------------------------------- */
 
-// Helperfunctie om het JSON-resultaat tijdelijk op het scherm te tonen
 function showTemporaryResult(data) {
-  // Verwijder eventuele bestaande overlay
   let existing = document.getElementById('api-result-overlay');
   if (existing) existing.remove();
 
-  // Maak een modern, zwevend element aan
   const overlay = document.createElement('div');
   overlay.id = 'api-result-overlay';
   overlay.style.cssText = `
@@ -191,7 +293,6 @@ function showTemporaryResult(data) {
     border: 1px solid rgba(56, 189, 248, 0.3);
   `;
 
-  // JSON/nette tekst formatteren
   let formattedText;
   if (typeof data === 'string') {
     formattedText = data;
@@ -209,6 +310,5 @@ function showTemporaryResult(data) {
 
   document.body.appendChild(overlay);
 
-  // Sluitknop functionaliteit
   document.getElementById('close-api-result').onclick = () => overlay.remove();
 }
