@@ -6,9 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prebrowser": "node inject-env.js",
-    "preandroid": "node inject-env.js",
-    "preios": "node inject-env.js",
+    "prebrowser": "node www/js/inject-env.js",
+    "preandroid": "node www/js/inject-env.js",
     "run:browser": "cordova run browser",
     "run:android": "cordova run android"
   },

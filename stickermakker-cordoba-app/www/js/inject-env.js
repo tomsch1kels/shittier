@@ -13,7 +13,7 @@ const CONFIG = {
 
 // Pad naar je www/js map in je Cordova app (pas aan indien nodig)
 // const targetPath = path.join(__dirname, 'stickermakker-cordoba-app', 'www', 'js', 'env-config.js');
-const targetPath = path.join(__dirname, 'www', 'js', 'env-config.js');
+const targetPath = path.join(__dirname, 'env-config.js');
 
 fs.writeFileSync(targetPath, envConfig);
 console.log('✅ API keys succesvol geïnjecteerd vanuit .env naar env-config.js!');
